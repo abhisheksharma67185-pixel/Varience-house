@@ -1,0 +1,11 @@
+{
+  "name": "variance-house",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "python3 -m http.server 4173 --bind 127.0.0.1",
+    "lint": "node --check script.js && node scripts/verify.mjs",
+    "typecheck": "node --check script.js",
+    "build": "node scripts/build.mjs"
+  }
+}
