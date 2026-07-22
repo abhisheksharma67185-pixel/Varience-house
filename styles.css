@@ -1222,10 +1222,10 @@ body:hover .cursor-light { opacity: 1; }
 .map-notes dt { color: var(--muted); font-family: var(--mono); font-size: 8px; letter-spacing: .08em; text-transform: uppercase; }
 .map-notes dd { margin-top: 7px; font-size: 12px; }
 
-.apply { color: var(--ink); background: radial-gradient(ellipse 66% 48% at 50% 42%,rgba(255,255,253,.9),transparent 72%),radial-gradient(ellipse 48% 42% at 12% 82%,rgba(240,216,210,.32),transparent 74%),radial-gradient(ellipse 54% 44% at 88% 13%,rgba(198,220,238,.46),transparent 72%),radial-gradient(ellipse 48% 38% at 92% 94%,rgba(216,211,231,.4),transparent 72%),linear-gradient(180deg,#eaf2f6 0%,#f7f8f4 40%,#f8f3ef 68%,#e9e7f0 100%); }
+.apply { color: var(--ink); background: var(--paper); }
 .apply .scientific-label, .apply > p, .apply-facts { color: var(--muted); }
 .apply-orbit { border-color: rgba(23,34,55,.12); }
-.site-footer { color: var(--ink); border-color: rgba(23,34,55,.13); background: radial-gradient(ellipse 58% 55% at 14% 12%,rgba(255,255,252,.58),transparent 72%),radial-gradient(ellipse 48% 50% at 88% 82%,rgba(202,221,237,.38),transparent 72%),linear-gradient(180deg,#f5f5f1 0%,#f4ece8 38%,#e9e6ef 69%,#dfeaf1 100%); }
+.site-footer { color: var(--ink); border-color: rgba(23,34,55,.13); background: var(--paper); }
 .footer-brand p, .site-footer > div > a, .site-footer > small { color: var(--muted); }
 .site-footer > small { border-color: rgba(23,34,55,.15); }
 
@@ -1409,10 +1409,7 @@ body:hover .cursor-light { opacity: 1; }
   min-height: auto;
   padding: calc(var(--nav-height, 80px) + 36px) 0 80px;
   scroll-margin-top: calc(var(--nav-height, 80px) + 20px);
-  background:
-    radial-gradient(ellipse 52% 42% at 12% 18%, rgba(236, 219, 217, 0.27), transparent 72%),
-    radial-gradient(ellipse 48% 38% at 88% 82%, rgba(212, 225, 238, 0.34), transparent 72%),
-    linear-gradient(180deg, #f7f8f5 0%, #f1f4f5 54%, #ececf2 100%);
+  background: var(--paper);
 }
 
 .selection-dossier {
