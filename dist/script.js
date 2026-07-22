@@ -752,38 +752,46 @@ const updatePhotoArchive = () => {
   const scrollDistance = Math.max(1, bounds.height - window.innerHeight);
   const progress = clamp(-bounds.top / scrollDistance);
 
-  /* Phase 1 — the envelope mouth (top flap) rotates open */
-  const mouth = easeInOutCubic(clamp((progress - 0.02) / 0.14));
-  envelopeFlap.style.transform = `perspective(1300px) rotateX(${(mouth * 178).toFixed(2)}deg)`;
-  envelopeFlap.style.zIndex = mouth > 0.5 ? '1' : '4';
+  /* Phase 1 — Envelope mouth (top flap) rotates open upwards */
+  const mouthProgress = clamp((progress - 0.02) / 0.20);
+  const mouth = easeInOutCubic(mouthProgress);
+  envelopeFlap.style.transform = `perspective(1200px) rotateX(${(mouth * 180).toFixed(2)}deg)`;
+  envelopeFlap.style.zIndex = mouth > 0.5 ? '1' : '35';
 
-  /* Phase 2 — cards rise straight out of the mouth one by one. A card only
-     starts travelling sideways once its bottom edge has fully cleared the
-     mouth, so it can never cross in front of the envelope body. */
-  const envW = envelopeBox.offsetWidth;
-  const envH = envelopeBox.offsetHeight;
-  const cardW = envelopeCards[0].offsetWidth;
-  const cardH = envelopeCards[0].offsetHeight;
-  const cardHomeTop = envelopeCards[0].offsetTop;
-  const clearY = -(cardHomeTop + cardH + 12);
+  /* Phase 2 — 4 Cards emerge one by one through the mouth (2 Left, 2 Right) */
+  const envW = envelopeBox.offsetWidth || 400;
+  const envH = envelopeBox.offsetHeight || 240;
+  const cardW = envelopeCards[0]?.offsetWidth || 220;
+  const cardH = envelopeCards[0]?.offsetHeight || 190;
+
+  const isMobile = window.innerWidth <= 768;
+  const spreadX = isMobile ? Math.min(160, window.innerWidth * 0.38) : Math.min(340, window.innerWidth * 0.32);
 
   envelopeCards.forEach((card, index) => {
     const plan = envelopeCardPlan[index % envelopeCardPlan.length];
-    const start = 0.18 + index * 0.2;
-    const t = clamp((progress - start) / 0.19);
-    /* 1) rise through the mouth, 2) glide sideways above the envelope,
-       3) settle down into the side slot */
-    const riseT = easeOutCubic(clamp(t / 0.42));
-    const travelT = easeInOutCubic(clamp((t - 0.42) / 0.3));
-    const settleT = easeInOutCubic(clamp((t - 0.72) / 0.28));
-    const finalX = plan.side * Math.min(envW / 2 + cardW * 0.68, window.innerWidth / 2 - cardW * 0.58);
-    const finalY = plan.row === 0 ? -(envH * 0.47) : envH * 0.155;
+    const start = 0.20 + index * 0.16;
+    const t = clamp((progress - start) / 0.22);
+
+    const riseT = easeOutCubic(clamp(t / 0.45));
+    const travelT = easeInOutCubic(clamp((t - 0.30) / 0.50));
+    const settleT = easeInOutCubic(clamp((t - 0.65) / 0.35));
+
+    const finalX = plan.side * spreadX;
+    const finalY = plan.row === 0 ? -(envH * 0.48) : (envH * 0.28);
+    const clearY = -(envH * 0.65 + cardH * 0.35);
+
     const x = finalX * travelT;
-    const y = clearY * riseT + (finalY - clearY) * settleT;
+    const y = -(cardH * 0.4 * riseT) + (clearY + (finalY - clearY) * settleT) * travelT;
     const rotation = plan.rot * travelT;
-    const scale = 0.62 + 0.38 * riseT;
-    /* Later cards tuck behind the ones already placed, so captions stay visible */
-    card.style.zIndex = String(envelopeCards.length - index);
+    const scale = 0.7 + 0.3 * riseT;
+    const opacity = clamp(t / 0.12);
+
+    // Card starts inside pocket (zIndex 10, behind front cover zIndex 20),
+    // and pops out in front (zIndex 25+) as it clears the mouth
+    const zIndex = travelT > 0.08 ? (25 + index) : 10;
+
+    card.style.opacity = opacity.toFixed(2);
+    card.style.zIndex = String(zIndex);
     card.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${rotation.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
   });
 };
@@ -1013,24 +1021,19 @@ if (dossierGrid && dossierManifesto && dossierRecords.length && !reducedMotion) 
     void clone.offsetHeight;
 
     requestAnimationFrame(() => {
-      clone.style.left = `${targetRect.left}px`;
-      clone.style.top = `${targetRect.top}px`;
-      clone.style.width = `${targetRect.width}px`;
-      clone.style.height = `${targetRect.height}px`;
-      clone.style.transform = 'scale(1.02) rotate(-0.5deg)';
+      if (activeClone === clone) {
+        clone.style.left = `${targetRect.left}px`;
+        clone.style.top = `${targetRect.top}px`;
+        clone.style.width = `${targetRect.width}px`;
+        clone.style.height = `${targetRect.height}px`;
+        clone.style.transform = 'scale(1.02) rotate(-0.5deg)';
+      }
     });
   };
 
   dossierRecords.forEach((record) => {
     record.addEventListener('pointerenter', () => {
       if (!isPinned) flyToCenter(record, false);
-    });
-
-    record.addEventListener('pointerleave', (e) => {
-      // If moving to the clone itself or if pinned, keep active
-      if (!isPinned && activeSource === record) {
-        removeClone();
-      }
     });
 
     record.addEventListener('click', (e) => {
@@ -1043,8 +1046,14 @@ if (dossierGrid && dossierManifesto && dossierRecords.length && !reducedMotion) 
     });
   });
 
-  dossierGrid.addEventListener('mouseleave', () => {
-    if (!isPinned && activeClone) removeClone();
+  dossierGrid.addEventListener('pointerleave', (e) => {
+    // Only remove clone when pointer genuinely exits dossier grid
+    if (!isPinned && activeClone) {
+      const rect = dossierGrid.getBoundingClientRect();
+      if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
+        removeClone();
+      }
+    }
   });
 
   document.addEventListener('click', (e) => {
