@@ -474,7 +474,7 @@ body:hover .cursor-light { opacity: 1; }
   padding: 14px 14px 24px;
   border: 1px solid rgba(255, 255, 255, 0.75);
   border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.22) 40%, rgba(255, 255, 255, 0.38) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.38) 0%, rgba(255, 255, 255, 0.12) 40%, rgba(255, 255, 255, 0.22) 100%);
   backdrop-filter: blur(24px) saturate(1.8);
   -webkit-backdrop-filter: blur(24px) saturate(1.8);
   box-shadow: 
@@ -491,7 +491,7 @@ body:hover .cursor-light { opacity: 1; }
 }
 
 .brief-photo:hover {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.35) 40%, rgba(255, 255, 255, 0.52) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.24) 40%, rgba(255, 255, 255, 0.34) 100%);
   border-color: rgba(255, 255, 255, 0.95);
   transform: rotate(0deg) scale(1.02);
   box-shadow: 
@@ -920,12 +920,6 @@ body:hover .cursor-light { opacity: 1; }
 .archive-photo--three { transition-delay: 0.45s; }
 .archive-photo--four  { transition-delay: 0.60s; }
 
-.archive-photo:hover {
-  z-index: 50 !important;
-  transform: translate(var(--card-tx), calc(var(--card-ty) - 10px)) scale(1.08) rotate(0deg) !important;
-  box-shadow: 0 28px 65px rgba(0, 0, 0, 0.22);
-}
-
 .archive-photo > div {
   width: 100%;
   height: 125px;
@@ -938,10 +932,10 @@ body:hover .cursor-light { opacity: 1; }
 .archive-photo--two > div { background-image: url('assets/archive-photo-2.jpg'); }
 .archive-photo--three > div { background-image: url('assets/archive-photo-3.jpg'); }
 .archive-photo--four > div { background-image: url('assets/archive-photo-4.jpg'); }
-.archive-photo--five > div { background-image: url('assets/hero-gallery/cleanroom-sensor.svg'); }
-.archive-photo--six > div { background-image: url('assets/hero-gallery/crystal-growth.svg'); }
-.archive-photo--seven > div { background-image: url('assets/hero-gallery/laser-optics.svg'); }
-.archive-photo--eight > div { background-image: url('assets/hero-gallery/thin-film.svg'); }
+.archive-photo--five > div { background-image: url('assets/archive-photo-5.jpg'); }
+.archive-photo--six > div { background-image: url('assets/archive-photo-6.jpg'); }
+.archive-photo--seven > div { background-image: url('assets/archive-photo-7.jpg'); }
+.archive-photo--eight > div { background-image: url('assets/archive-photo-8.jpg'); }
 
 .archive-photo figcaption {
   display: flex;
@@ -1196,22 +1190,6 @@ body:hover .cursor-light { opacity: 1; }
     linear-gradient(180deg,#f2f6f7 0%,#f8f8f4 47%,#f1eff2 100%);
 }
 .life-heading p { color: var(--muted); }
-.photo-archive { position: relative; width: var(--page); height: 1040px; margin: 70px auto 0; }
-.archive-photo { --base-rotate: 0deg; position: absolute; z-index: var(--archive-z,1); padding: 11px 11px 48px; border: 1px solid rgba(23,34,55,.12); border-radius: 3px; background: rgba(250,251,249,.97); box-shadow: 0 24px 62px rgba(49,66,92,.14), 0 3px 8px rgba(49,66,92,.06); transform: translate3d(var(--archive-x,0px),var(--archive-y,0px),0) rotate(calc(var(--base-rotate) + var(--archive-r,0deg))); transition: box-shadow .45s ease; will-change: transform; }
-.archive-photo:hover { z-index: 30; box-shadow: 0 34px 86px rgba(49,66,92,.22),0 3px 8px rgba(49,66,92,.07); }
-.archive-photo > div { width: 100%; height: 100%; background-image: url("assets/life-at-the-house-contact-sheet.jpg"); background-size: 400% 200%; background-position: var(--photo-x) var(--photo-y); background-repeat: no-repeat; filter: saturate(.8) contrast(.95); transition: transform .65s var(--ease),filter .45s ease; }
-.archive-photo:hover > div { filter: saturate(.95) contrast(1); transform: scale(1.018); }
-.archive-photo figcaption { position: absolute; right: 11px; bottom: 13px; left: 11px; display: flex; justify-content: space-between; align-items: end; }
-.archive-photo figcaption span { font-family: var(--display); font-size: 15px; font-weight: 500; letter-spacing: -.03em; }
-.archive-photo figcaption small { color: var(--muted); font-family: var(--mono); font-size: 7px; letter-spacing: .07em; text-transform: uppercase; }
-.archive-photo--one { top: 52px; left: 0; width: 420px; height: 540px; --base-rotate:-3deg; }
-.archive-photo--two { top: 0; left: 390px; width: 350px; height: 420px; --base-rotate:2deg; }
-.archive-photo--three { top: 46px; right: 160px; width: 310px; height: 350px; --base-rotate:-1.5deg; }
-.archive-photo--four { top: 366px; right: 0; width: 350px; height: 450px; --base-rotate:3deg; }
-.archive-photo--five { top: 548px; left: 80px; width: 330px; height: 420px; --base-rotate:1.5deg; }
-.archive-photo--six { top: 440px; left: 395px; width: 440px; height: 550px; --base-rotate:-2deg; }
-.archive-photo--seven { top: 702px; right: 258px; width: 310px; height: 300px; --base-rotate:2.5deg; }
-.archive-photo--eight { top: 20px; right: 0; width: 240px; height: 300px; --base-rotate:4deg; }
 .discipline-collisions { color: var(--ink); border-color: var(--line); }
 
 .applicants { color: var(--ink); background: radial-gradient(ellipse 52% 42% at 12% 18%,rgba(236,219,217,.27),transparent 72%),radial-gradient(ellipse 48% 38% at 88% 82%,rgba(212,225,238,.34),transparent 72%),linear-gradient(180deg,#f7f8f5 0%,#f1f4f5 54%,#ececf2 100%); }
@@ -1383,7 +1361,6 @@ body:hover .cursor-light { opacity: 1; }
   .territory-card { width: 440px; height: 610px; }
   .territory-visual { height: 350px; }
   .territory-stack { height: 2320px; }
-  .photo-archive { transform: scale(.84); transform-origin: top left; width: 119%; margin-bottom: -160px; }
   .map-document { grid-template-columns: 1fr; }
   .map-notes { display: grid; grid-template-columns: 160px 1fr; gap: 10px 30px; padding: 26px 0 0; border-top: 1px solid var(--line); border-left: 0; }
   .map-notes > p { margin-top: 0; }
@@ -1404,11 +1381,6 @@ body:hover .cursor-light { opacity: 1; }
   .progress-label { justify-content: flex-end; }
   .day-dial b { transform: rotate(var(--dial-angle,0deg)) translateY(-46%) translateX(118px); }
   .life { min-height: auto; }
-  .photo-archive { display: flex; width: 100%; height: auto; gap: 14px; margin-top: 52px; margin-bottom: 36px; padding: 10px 12px 36px; overflow-x: auto; transform: none; scroll-padding: 12px; scroll-snap-type: x mandatory; scrollbar-width: none; }
-  .photo-archive::-webkit-scrollbar { display: none; }
-  .archive-photo, .archive-photo--one, .archive-photo--two, .archive-photo--three, .archive-photo--four, .archive-photo--five, .archive-photo--six, .archive-photo--seven, .archive-photo--eight { position: relative; top: auto; right: auto; left: auto; flex: 0 0 min(82vw,360px); width: auto; height: 470px; transform: none !important; scroll-snap-align: center; }
-  .archive-photo figcaption { align-items: flex-end; flex-direction: row; }
-  .archive-photo figcaption small { text-align: right; }
   .bangalore-map { min-height: auto; padding: 84px 0 70px; }
   .map-heading { grid-template-columns: 1fr; gap: 36px; margin-top: 48px; }
   .map-document { gap: 10px; margin-top: 50px; padding: 8px; }
@@ -1638,7 +1610,66 @@ body:hover .cursor-light { opacity: 1; }
 .atmospheric-scrim {
   position: absolute;
   inset: 0;
+  z-index: 2;
   background: linear-gradient(90deg, rgba(7, 11, 17, 0.96) 0%, rgba(7, 11, 17, 0.84) 32%, rgba(7, 11, 17, 0.42) 58%, transparent 78%);
+}
+
+/* Drifting clouds above the satellite map, below the atmospheric scrim */
+.cloud-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cloud {
+  position: absolute;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 52% 62% at 28% 62%, rgba(255, 255, 255, 0.85), transparent 70%),
+    radial-gradient(ellipse 46% 58% at 54% 38%, rgba(255, 255, 255, 0.7), transparent 70%),
+    radial-gradient(ellipse 48% 60% at 76% 64%, rgba(255, 255, 255, 0.6), transparent 70%);
+  will-change: transform;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.cloud-layer--far .cloud {
+  width: 380px;
+  height: 150px;
+  opacity: 0.4;
+  filter: blur(30px);
+}
+
+.cloud-layer--near .cloud {
+  width: 620px;
+  height: 230px;
+  opacity: 0.6;
+  filter: blur(42px);
+}
+
+.cloud--f1 { top: 10%; left: 0; animation-name: cloud-drift-lr; animation-duration: 95s; animation-delay: -30s; }
+.cloud--f2 { top: 56%; left: 0; animation-name: cloud-drift-rl; animation-duration: 125s; animation-delay: -85s; }
+.cloud--f3 { top: 76%; left: 0; animation-name: cloud-drift-diag; animation-duration: 140s; animation-delay: -55s; }
+
+.cloud--n1 { top: 18%; left: 0; animation-name: cloud-drift-rl; animation-duration: 80s; animation-delay: -48s; }
+.cloud--n2 { top: 62%; left: 0; animation-name: cloud-drift-lr; animation-duration: 70s; animation-delay: -18s; }
+.cloud--n3 { top: 38%; left: 0; animation-name: cloud-drift-diag; animation-duration: 92s; animation-delay: -70s; }
+
+@keyframes cloud-drift-lr {
+  from { transform: translate(-45vw, 0); }
+  to { transform: translate(125vw, 0); }
+}
+
+@keyframes cloud-drift-rl {
+  from { transform: translate(125vw, 0); }
+  to { transform: translate(-45vw, 0); }
+}
+
+@keyframes cloud-drift-diag {
+  from { transform: translate(-45vw, 5vh); }
+  to { transform: translate(125vw, -7vh); }
 }
 
 .bangalore-content {

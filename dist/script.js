@@ -697,13 +697,24 @@ const envelopeCards = [...(envelopeSection?.querySelectorAll('[data-archive-phot
 const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
 const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
-/* Cards emerge one by one, alternating sides: two left, two right */
+/* Cards emerge one by one, alternating sides: four left, four right.
+   Each side forms a loose pile of four vertically overlapping slots. */
 const envelopeCardPlan = [
-  { side: -1, row: 0, rot: -6 },
-  { side: 1, row: 0, rot: 5 },
-  { side: -1, row: 1, rot: 4 },
-  { side: 1, row: 1, rot: -5 },
+  { side: -1, slot: 0, rot: -6, dx: -14 },
+  { side: 1, slot: 0, rot: 5, dx: 14 },
+  { side: -1, slot: 1, rot: 4, dx: 10 },
+  { side: 1, slot: 1, rot: -5, dx: -10 },
+  { side: -1, slot: 2, rot: -3, dx: -6 },
+  { side: 1, slot: 2, rot: 6, dx: 6 },
+  { side: -1, slot: 3, rot: 5, dx: 12 },
+  { side: 1, slot: 3, rot: -4, dx: -12 },
 ];
+
+/* Slot centers as a fraction of the envelope height, top to bottom */
+const envelopeSlotY = [-0.70, -0.24, 0.22, 0.68];
+
+/* Extra outward steps per slot: the two deeper slots fan further out */
+const envelopeSlotX = [0, 0, 1, 2];
 
 let envelopeScrubbed = false;
 
@@ -715,6 +726,10 @@ const clearEnvelopeInlineStyles = () => {
   envelopeCards.forEach((card) => {
     card.style.transform = '';
     card.style.zIndex = '';
+    card.style.opacity = '';
+    card.style.pointerEvents = '';
+    card.style.removeProperty('--card-tx');
+    card.style.removeProperty('--card-ty');
   });
 };
 
@@ -758,41 +773,56 @@ const updatePhotoArchive = () => {
   envelopeFlap.style.transform = `perspective(1200px) rotateX(${(mouth * 180).toFixed(2)}deg)`;
   envelopeFlap.style.zIndex = mouth > 0.5 ? '1' : '35';
 
-  /* Phase 2 — 4 Cards emerge one by one through the mouth (2 Left, 2 Right) */
+  /* Phase 2 — 8 cards rise straight out through the mouth one by one.
+     A card only starts travelling sideways once its bottom edge has fully
+     cleared the mouth, then it glides sideways above the envelope and
+     settles into its side slot: four cards on the left, four on the right. */
   const envW = envelopeBox.offsetWidth || 400;
   const envH = envelopeBox.offsetHeight || 240;
   const cardW = envelopeCards[0]?.offsetWidth || 220;
   const cardH = envelopeCards[0]?.offsetHeight || 190;
+  const cardHomeTop = envelopeCards[0]?.offsetTop || 0;
 
   const isMobile = window.innerWidth <= 768;
-  const spreadX = isMobile ? Math.min(160, window.innerWidth * 0.38) : Math.min(340, window.innerWidth * 0.32);
+  const spreadX = isMobile
+    ? Math.min(160, window.innerWidth * 0.38)
+    : Math.min(envW / 2 + cardW * 0.68, window.innerWidth / 2 - cardW * 0.6);
+
+  /* Rise distance: the card's bottom edge ends just above the open mouth */
+  const clearY = -(cardHomeTop + cardH + 12);
+
+  /* Outward step for deeper slots, capped so cards never leave the viewport */
+  const outwardStep = Math.min(118, Math.max(0, (window.innerWidth / 2 - spreadX - cardW * 0.62) / 2));
 
   envelopeCards.forEach((card, index) => {
     const plan = envelopeCardPlan[index % envelopeCardPlan.length];
-    const start = 0.20 + index * 0.16;
-    const t = clamp((progress - start) / 0.22);
+    const start = 0.16 + index * 0.085;
+    const t = clamp((progress - start) / 0.20);
 
-    const riseT = easeOutCubic(clamp(t / 0.45));
-    const travelT = easeInOutCubic(clamp((t - 0.30) / 0.50));
-    const settleT = easeInOutCubic(clamp((t - 0.65) / 0.35));
+    /* 1) rise through the mouth, 2) glide sideways above the envelope,
+       3) settle down into the side slot */
+    const riseT = easeOutCubic(clamp(t / 0.42));
+    const travelT = easeInOutCubic(clamp((t - 0.42) / 0.30));
+    const settleT = easeInOutCubic(clamp((t - 0.72) / 0.28));
 
-    const finalX = plan.side * spreadX;
-    const finalY = plan.row === 0 ? -(envH * 0.48) : (envH * 0.28);
-    const clearY = -(envH * 0.65 + cardH * 0.35);
+    const finalX = plan.side * (spreadX + envelopeSlotX[plan.slot] * outwardStep) + plan.dx;
+    const finalY = envelopeSlotY[plan.slot] * envH;
 
     const x = finalX * travelT;
-    const y = -(cardH * 0.4 * riseT) + (clearY + (finalY - clearY) * settleT) * travelT;
+    const y = clearY * riseT + (finalY - clearY) * settleT;
     const rotation = plan.rot * travelT;
-    const scale = 0.7 + 0.3 * riseT;
-    const opacity = clamp(t / 0.12);
+    const scale = 0.62 + 0.38 * riseT;
+    const opacity = clamp(t / 0.05);
 
-    // Card starts inside pocket (zIndex 10, behind front cover zIndex 20),
-    // and pops out in front (zIndex 25+) as it clears the mouth
-    const zIndex = travelT > 0.08 ? (25 + index) : 10;
-
+    /* Later cards tuck behind the ones already placed, so captions stay visible */
     card.style.opacity = opacity.toFixed(2);
-    card.style.zIndex = String(zIndex);
+    card.style.zIndex = String(envelopeCards.length - index);
     card.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${rotation.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+    /* Mirror the live position for the hover lift (its transform uses these vars) */
+    card.style.setProperty('--card-tx', `${x.toFixed(1)}px`);
+    card.style.setProperty('--card-ty', `${y.toFixed(1)}px`);
+    /* Cards still hidden inside the pocket must not catch hovers */
+    card.style.pointerEvents = opacity > 0.5 ? '' : 'none';
   });
 };
 
