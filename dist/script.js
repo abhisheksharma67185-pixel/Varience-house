@@ -126,31 +126,358 @@ if (heroScene && finePointer && !reducedMotion) {
 
 const smokeCanvas = document.querySelector('[data-smoke-canvas]');
 
+// Volumetric 3D smoke: raymarched FBM volume rendered in a raw WebGL
+// fragment shader (no dependencies). Smoke streams left -> right, dense on
+// the left and dissolving to clean paper on the right, lit from top-right
+// so billow tops read bright and crevices fall into cool grey shadow.
+const startVolumetricSmoke = (canvas) => {
+  const gl = canvas.getContext('webgl', {
+    alpha: false,
+    depth: false,
+    stencil: false,
+    antialias: false,
+    powerPreference: 'low-power',
+  });
+  if (!gl) return null;
+
+  const vertexSource = `
+    attribute vec2 aPos;
+    void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
+  `;
+
+  const fragmentSource = (steps) => `
+    #ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+    #else
+    precision mediump float;
+    #endif
+
+    uniform vec2 uRes;
+    uniform float uTime;
+
+    #define STEPS ${steps}
+
+    const vec3 BG = vec3(0.9686, 0.9725, 0.9608);
+    const vec3 SMOKE_DARK = vec3(0.33, 0.345, 0.39);
+    const vec3 SMOKE_LIGHT = vec3(0.945, 0.945, 0.935);
+    const vec3 LIGHT_DIR = vec3(0.4249, 0.7081, -0.4721);
+
+    float hash13(vec3 p) {
+      p = fract(p * 0.1031);
+      p += dot(p, p.zyx + 31.32);
+      return fract((p.x + p.y) * p.z);
+    }
+
+    float noise3(vec3 p) {
+      vec3 i = floor(p);
+      vec3 f = fract(p);
+      vec3 u = f * f * (3.0 - 2.0 * f);
+      return mix(
+        mix(mix(hash13(i), hash13(i + vec3(1.0, 0.0, 0.0)), u.x),
+            mix(hash13(i + vec3(0.0, 1.0, 0.0)), hash13(i + vec3(1.0, 1.0, 0.0)), u.x), u.y),
+        mix(mix(hash13(i + vec3(0.0, 0.0, 1.0)), hash13(i + vec3(1.0, 0.0, 1.0)), u.x),
+            mix(hash13(i + vec3(0.0, 1.0, 1.0)), hash13(i + vec3(1.0, 1.0, 1.0)), u.x), u.y),
+        u.z);
+    }
+
+    float fbm3(vec3 p) {
+      float v = 0.0;
+      float a = 0.5;
+      for (int i = 0; i < 3; i++) {
+        v += a * noise3(p);
+        p = p * 2.03 + vec3(17.3, 9.1, 4.7);
+        a *= 0.52;
+      }
+      return v;
+    }
+
+    float fbm2(vec3 p) {
+      float v = 0.5 * noise3(p);
+      p = p * 2.03 + vec3(17.3, 9.1, 4.7);
+      v += 0.26 * noise3(p);
+      return v;
+    }
+
+    void main() {
+      vec2 uvN = gl_FragCoord.xy / uRes;
+      float aspect = uRes.x / uRes.y;
+      vec2 uv = vec2((uvN.x - 0.5) * aspect, uvN.y - 0.5);
+      float t = uTime;
+
+      // Per-pixel domain-warped flow position (constant along the ray).
+      // The whole field advects left -> right at a slow, stately pace.
+      float sx = uv.x * 1.85 - t * 0.085;
+      float sy = uv.y * 1.85;
+      float wx = fbm3(vec3(sx, sy + t * 0.045, 3.7));
+      float wy = fbm3(vec3(sx + 5.2, sy - t * 0.03, 1.3));
+      float qx = sx + (wx - 0.5) * 2.7;
+      float qy = sy + (wy - 0.5) * 2.295;
+
+      // Density mask: heavy on the left, organic dissolving edge to the right.
+      float edge = fbm3(vec3(uvN.x * 1.5 + 9.0 - t * 0.02975, uvN.y * 1.5, 7.7));
+      float maskX = 1.0 - smoothstep(0.15, 1.05, uvN.x + (edge - 0.5) * 0.85);
+      float maskY = 0.74 + 0.26 * (1.0 - smoothstep(0.10, 0.95, uvN.y));
+      float mask = min(maskX * maskY + 0.035, 1.0);
+
+      vec3 rd = normalize(vec3(uv * 0.5, 1.0));
+      float jit = hash13(vec3(gl_FragCoord.xy * 0.71, 0.37));
+
+      float trans = 1.0;
+      float tau = 0.0;
+      vec3 col = vec3(0.0);
+      float dt = 2.0 / float(STEPS);
+
+      for (int i = 0; i < STEPS; i++) {
+        float tz = -1.0 + (float(i) + 0.2 + jit * 0.6) * dt;
+        vec3 pos = vec3(uv + rd.xy * tz, rd.z * tz);
+        float qz = pos.z * 1.1 + t * 0.025;
+        vec3 sp = vec3(qx + pos.x * 0.6475, qy + pos.y * 0.6475, qz);
+        float v = fbm3(sp);
+        float clump = fbm3(vec3(qx * 0.42 + 13.1, qy * 0.42 + 7.7, qz * 0.42));
+        float dens = smoothstep(0.40, 0.70, v * 0.62 + clump * 0.66) * mask;
+        if (dens > 0.002) {
+          vec3 lp = sp + LIGHT_DIR * 0.34;
+          float vl = fbm3(lp);
+          float cl = fbm2(vec3((qx + LIGHT_DIR.x * 0.34) * 0.42 + 13.1,
+                               (qy + LIGHT_DIR.y * 0.34) * 0.42 + 7.7,
+                               (qz + LIGHT_DIR.z * 0.34) * 0.42));
+          float densL = smoothstep(0.40, 0.70, vl * 0.62 + cl * 0.66) * mask;
+          float lit = clamp(0.50 + (dens - densL) * 8.0, 0.0, 1.0);
+          tau += dens * dt;
+          float ao = 0.50 + 0.50 * exp(-tau * 1.3);
+          float a = 1.0 - exp(-dens * dt * 4.6);
+          col += trans * a * mix(SMOKE_DARK, SMOKE_LIGHT, lit * ao);
+          trans *= 1.0 - a;
+          if (trans < 0.02) break;
+        }
+      }
+
+      col += trans * BG;
+      col += (hash13(vec3(gl_FragCoord.xy, 1.7)) - 0.5) * 0.006;
+      gl_FragColor = vec4(col, 1.0);
+    }
+  `;
+
+  const compile = (type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+      gl.deleteShader(shader);
+      return null;
+    }
+    return shader;
+  };
+
+  const buildProgram = (steps) => {
+    const vs = compile(gl.VERTEX_SHADER, vertexSource);
+    const fs = compile(gl.FRAGMENT_SHADER, fragmentSource(steps));
+    if (!vs || !fs) return null;
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
+    return program;
+  };
+
+  // Two quality tiers; drop down if the device cannot hold a smooth frame.
+  const tiers = [
+    { scale: 0.55, steps: 22 },
+    { scale: 0.42, steps: 14 },
+  ];
+  let tier = 0;
+  let program = buildProgram(tiers[0].steps);
+  if (!program) return null;
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+
+  let uRes = null;
+  let uTime = null;
+  const useProgram = () => {
+    gl.useProgram(program);
+    const aPos = gl.getAttribLocation(program, 'aPos');
+    gl.enableVertexAttribArray(aPos);
+    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+    uRes = gl.getUniformLocation(program, 'uRes');
+    uTime = gl.getUniformLocation(program, 'uTime');
+  };
+  useProgram();
+
+  const resize = () => {
+    const bounds = canvas.getBoundingClientRect();
+    const scale = tiers[tier].scale;
+    canvas.width = Math.max(2, Math.round(bounds.width * scale));
+    canvas.height = Math.max(2, Math.round(bounds.height * scale));
+    gl.viewport(0, 0, canvas.width, canvas.height);
+  };
+  resize();
+  window.addEventListener('resize', resize);
+
+  const draw = (time) => {
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, time);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  };
+
+  if (reducedMotion) {
+    draw(12);
+    return { stop: () => {} };
+  }
+
+  let raf = 0;
+  let running = false;
+  let inView = true;
+  const start = performance.now();
+  let frames = 0;
+  let accum = 0;
+  let last = start;
+
+  const loop = (now) => {
+    raf = requestAnimationFrame(loop);
+    draw(12 + (now - start) / 1000);
+
+    // Adaptive quality: after a warm-up, drop a tier if frames run long.
+    frames += 1;
+    accum += now - last;
+    last = now;
+    if (frames === 90 && tier < tiers.length - 1 && accum / frames > 26) {
+      tier += 1;
+      program = buildProgram(tiers[tier].steps);
+      if (program) {
+        useProgram();
+        resize();
+      }
+    }
+  };
+
+  const play = () => {
+    if (running || document.hidden || !inView) return;
+    running = true;
+    last = performance.now();
+    raf = requestAnimationFrame(loop);
+  };
+  const pause = () => {
+    running = false;
+    cancelAnimationFrame(raf);
+  };
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) pause();
+    else play();
+  });
+
+  const hero = canvas.closest('.hero');
+  if (hero && 'IntersectionObserver' in window) {
+    new IntersectionObserver(
+      (entries) => {
+        inView = entries[0]?.isIntersecting !== false;
+        if (inView) play();
+        else pause();
+      },
+      { threshold: 0 },
+    ).observe(hero);
+  }
+
+  play();
+  return { stop: pause };
+};
+
 if (smokeCanvas) {
+  const volumetric = startVolumetricSmoke(smokeCanvas);
+
+  if (volumetric) {
+    smokeCanvas.addEventListener('webglcontextlost', (event) => {
+      event.preventDefault();
+      volumetric.stop();
+      // A canvas that lost its WebGL context cannot switch to 2D — swap in a
+      // fresh element and run the Canvas 2D smoke on it instead.
+      const replacement = smokeCanvas.cloneNode();
+      smokeCanvas.replaceWith(replacement);
+      startCanvasSmoke(replacement);
+    });
+  } else {
+    startCanvasSmoke(smokeCanvas);
+  }
+}
+
+function startCanvasSmoke(smokeCanvas) {
   const ctx = smokeCanvas.getContext('2d');
+  if (!ctx) return;
+  // Offscreen buffer for the self-advection feedback pass
+  const field = document.createElement('canvas');
+  const fctx = field.getContext('2d');
   let width = 0;
   let height = 0;
   let dpr = 1;
   let time = 0;
-  let mouseX = -1000;
-  let mouseY = -1000;
   let frame = 0;
 
+  // Pre-render ultra-soft smoke puffs in dark / mid / light tones.
+  // Sprites stay silky — broad gradients only, no hard detail — because
+  // the feedback pass in renderSmoke advects the frame onto itself in
+  // wavy bands, smearing these blobs into smooth liquid marble folds.
+  const makeSmokeSprite = (base) => {
+    const size = 384;
+    const sprite = document.createElement('canvas');
+    sprite.width = size;
+    sprite.height = size;
+    const g = sprite.getContext('2d');
+    const cx = size / 2;
+    const cy = size / 2;
+
+    const radius = size * 0.48;
+
+    // Soft single-tone body
+    const body = g.createRadialGradient(cx, cy, 0, cx, cy, radius);
+    body.addColorStop(0, `rgba(${base},${base + 2},${base + 8},0.8)`);
+    body.addColorStop(0.5, `rgba(${base + 6},${base + 8},${base + 13},0.42)`);
+    body.addColorStop(1, `rgba(${base + 12},${base + 14},${base + 18},0)`);
+    g.fillStyle = body;
+    g.fillRect(0, 0, size, size);
+
+    // Gentle tonal variation — huge, very low-alpha soft blobs only
+    for (let i = 0; i < 5; i += 1) {
+      const a = Math.random() * Math.PI * 2;
+      const d = Math.random() * radius * 0.35;
+      const x = cx + Math.cos(a) * d;
+      const y = cy + Math.sin(a) * d * 0.8;
+      const r = radius * (0.35 + Math.random() * 0.3);
+      const darker = Math.random() < 0.5;
+      const shade = Math.max(30, Math.min(240,
+        base + (darker ? -1 : 1) * (12 + Math.floor(Math.random() * 24))));
+      const grad = g.createRadialGradient(x, y, 0, x, y, r);
+      grad.addColorStop(0, `rgba(${shade},${shade + 2},${shade + 8},0.2)`);
+      grad.addColorStop(1, `rgba(${shade},${shade + 2},${shade + 8},0)`);
+      g.fillStyle = grad;
+      g.fillRect(0, 0, size, size);
+    }
+    return sprite;
+  };
+
+  const sprites = [
+    ...Array.from({ length: 3 }, () => makeSmokeSprite(72)),
+    ...Array.from({ length: 4 }, () => makeSmokeSprite(150)),
+    ...Array.from({ length: 2 }, () => makeSmokeSprite(208)),
+  ];
   const smokePuffs = [];
-  const count = window.innerWidth < 720 ? 30 : 48;
+  const count = window.innerWidth < 720 ? 26 : 46;
 
   // Smoke streams in from the left edge and flows across to the right
   const spawnPuff = (anywhere = false) => {
-    const radius = Math.random() * 150 + 100;
+    const radius = Math.random() * 220 + 200;
     return {
-      x: anywhere ? Math.random() * window.innerWidth * 1.1 - radius : -(radius + Math.random() * 240),
-      y: Math.random() * window.innerHeight * 1.08 - window.innerHeight * 0.04,
+      x: anywhere ? Math.random() * window.innerWidth * 0.6 - radius : -(radius + Math.random() * 320),
+      y: Math.random() * window.innerHeight * 1.1 - window.innerHeight * 0.05,
       radius,
-      vx: Math.random() * 1.15 + 0.95,
-      vy: -Math.random() * 0.14 - 0.02,
-      maxOpacity: Math.random() * 0.1 + 0.08,
+      sprite: sprites[Math.floor(Math.random() * sprites.length)],
+      vx: Math.random() * 1.1 + 0.7,
+      vy: -Math.random() * 0.12 - 0.02,
+      maxOpacity: Math.random() * 0.3 + 0.7,
       rotation: Math.random() * Math.PI * 2,
-      vRot: (Math.random() - 0.5) * 0.0016,
+      vRot: (Math.random() - 0.5) * 0.0022,
     };
   };
 
@@ -165,34 +492,40 @@ if (smokeCanvas) {
     dpr = Math.min(window.devicePixelRatio || 1, 2);
     smokeCanvas.width = Math.round(width * dpr);
     smokeCanvas.height = Math.round(height * dpr);
+    field.width = smokeCanvas.width;
+    field.height = smokeCanvas.height;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
-  const updateMouse = (event) => {
-    const bounds = smokeCanvas.getBoundingClientRect();
-    mouseX = event.clientX - bounds.left;
-    mouseY = event.clientY - bounds.top;
-  };
-
   const renderSmoke = () => {
-    ctx.clearRect(0, 0, width, height);
     time += 0.007;
 
+    // Feedback pass: copy the current frame, then redraw it shifted in
+    // wavy horizontal bands with slight decay. The smoke advects itself,
+    // smearing the soft puffs into smooth, continuous liquid folds.
+    fctx.setTransform(1, 0, 0, 1, 0, 0);
+    fctx.clearRect(0, 0, field.width, field.height);
+    fctx.drawImage(smokeCanvas, 0, 0);
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.save();
+    ctx.globalAlpha = 0.95; // gentle decay so old smoke dissolves
+    const bands = 110;
+    const bandH = height / bands;
+    for (let j = 0; j < bands; j += 1) {
+      const dx = 0.5 + Math.sin(time * 1.1 + j * 0.11) * 1.3;
+      const dy = Math.cos(time * 0.85 + j * 0.09) * 0.7;
+      ctx.drawImage(field, 0, j * bandH * dpr, field.width, bandH * dpr,
+        dx, j * bandH + dy, width, bandH);
+    }
+    ctx.restore();
+
+    // Inject soft puffs — very low alpha; the feedback pass builds density
     smokePuffs.forEach((p, index) => {
       // Steady left-to-right flow with organic wobble
-      p.x += p.vx + Math.sin(time * 0.9 + p.y * 0.002) * 0.32;
-      p.y += p.vy + Math.cos(time * 0.7 + p.x * 0.0016) * 0.14;
+      p.x += p.vx + Math.sin(time * 0.9 + p.y * 0.002) * 0.34;
+      p.y += p.vy + Math.cos(time * 0.7 + p.x * 0.0016) * 0.15;
       p.rotation += p.vRot;
-
-      // Interactive fluid swirl
-      const dx = mouseX - p.x;
-      const dy = mouseY - p.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist < 300 && dist > 0) {
-        const force = (1 - dist / 300) * 0.55;
-        p.x += force * 3.5;
-        p.y += (dy / dist) * force * 2;
-      }
 
       // Recycle back to the left edge once fully past the right boundary
       if (p.x - p.radius * 1.5 > width || p.y < -p.radius * 2) {
@@ -200,27 +533,18 @@ if (smokeCanvas) {
         return;
       }
 
-      // Fade in from the left edge, fade out approaching the right edge
+      // Fade in from the left edge, thin out past the middle like the reference
       const fadeIn = clamp((p.x + p.radius) / Math.max(width * 0.16, 1));
-      const fadeOut = clamp((width + p.radius * 0.4 - p.x) / Math.max(width * 0.22, 1));
-      const currentOpacity = p.maxOpacity * fadeIn * fadeOut;
+      const fadeOut = clamp((width * 0.6 + p.radius * 0.2 - p.x) / Math.max(width * 0.36, 1));
+      const currentOpacity = p.maxOpacity * 0.09 * fadeIn * fadeOut;
       if (currentOpacity <= 0.001) return;
 
       ctx.save();
       ctx.translate(p.x, p.y);
       ctx.rotate(p.rotation);
-
-      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.radius);
-      grad.addColorStop(0, `rgba(10, 12, 17, ${currentOpacity})`);
-      grad.addColorStop(0.32, `rgba(17, 21, 28, ${currentOpacity * 0.82})`);
-      grad.addColorStop(0.6, `rgba(30, 36, 46, ${currentOpacity * 0.36})`);
-      grad.addColorStop(0.85, `rgba(42, 49, 60, ${currentOpacity * 0.1})`);
-      grad.addColorStop(1, 'rgba(42, 49, 60, 0)');
-
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.scale(1.18, 0.82); // wind-sheared, horizontally stretched billows
+      ctx.globalAlpha = currentOpacity;
+      ctx.drawImage(p.sprite, -p.radius, -p.radius, p.radius * 2, p.radius * 2);
       ctx.restore();
     });
 
@@ -229,7 +553,6 @@ if (smokeCanvas) {
 
   resize();
   window.addEventListener('resize', resize);
-  smokeCanvas.closest('.hero')?.addEventListener('pointermove', updateMouse, { passive: true });
   renderSmoke();
 
   document.addEventListener('visibilitychange', () => {

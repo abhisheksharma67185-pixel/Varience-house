@@ -1540,6 +1540,7 @@ body:hover .cursor-light { opacity: 1; }
   background-size: cover;
   background-position: center;
   opacity: 0.82;
+  filter: brightness(0.88) saturate(0.95);
   transform: scale(var(--map-zoom, 1.04)) rotateX(var(--map-scroll-tilt, 5deg));
   transition: transform 0.2s ease-out;
 }
@@ -1547,7 +1548,7 @@ body:hover .cursor-light { opacity: 1; }
 .atmospheric-scrim {
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, rgba(15, 22, 34, 0.82) 0%, rgba(15, 22, 34, 0.45) 50%, transparent 100%);
+  background: linear-gradient(90deg, rgba(7, 11, 17, 0.96) 0%, rgba(7, 11, 17, 0.84) 32%, rgba(7, 11, 17, 0.42) 58%, transparent 78%);
 }
 
 .bangalore-content {
@@ -1589,7 +1590,7 @@ body:hover .cursor-light { opacity: 1; }
 }
 
 .bangalore-main-copy h2 em {
-  color: #c4765d;
+  color: #6b4d3e;
   font-family: var(--serif, Georgia, serif);
   font-weight: 400;
   font-style: italic;
@@ -1613,12 +1614,12 @@ body:hover .cursor-light { opacity: 1; }
   width: 100%;
   max-width: 330px;
   padding: 24px 26px;
-  border: 1px solid rgba(255, 255, 255, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.24);
   border-radius: 20px;
-  background: rgba(20, 28, 42, 0.35);
-  backdrop-filter: blur(24px) saturate(1.4);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.35), inset 0 1.5px 2px rgba(255, 255, 255, 0.5);
+  background: rgba(28, 36, 44, 0.22);
+  backdrop-filter: blur(18px) saturate(1.25);
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
   color: #ffffff;
 }
 

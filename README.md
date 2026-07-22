@@ -20,7 +20,7 @@ npm run typecheck
 npm run build
 ```
 
-The build script copies the verified static site to `dist/`. The experience intentionally uses CSS 3D and Canvas 2D rather than a heavy 3D dependency; reduced-motion preferences disable non-essential movement.
+The build script copies the verified static site to `dist/`. The hero smoke is a dependency-free volumetric WebGL shader (raymarched noise, left-to-right flow) with an automatic Canvas 2D fallback; reduced-motion preferences disable non-essential movement.
 
 ## Before launch
 
