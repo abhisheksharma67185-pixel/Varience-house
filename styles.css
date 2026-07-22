@@ -96,7 +96,7 @@ body:hover .cursor-light { opacity: 1; }
   position: fixed;
   top: 16px;
   left: 50%;
-  z-index: 40;
+  z-index: 500;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
