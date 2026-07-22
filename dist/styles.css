@@ -470,14 +470,18 @@ body:hover .cursor-light { opacity: 1; }
 .brief-photo {
   margin: 0;
   padding: 14px 14px 24px;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 8px;
-  box-shadow: 0 20px 50px rgba(23, 34, 55, 0.12), inset 0 1px rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(24px) saturate(1.6);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.22) 40%, rgba(255, 255, 255, 0.38) 100%);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: 
+    0 20px 50px rgba(35, 49, 74, 0.14),
+    0 3px 8px rgba(0, 0, 0, 0.06),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -2.5px 4px rgba(0, 0, 0, 0.04);
   transform: rotate(2deg);
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  transition: transform 0.4s var(--ease), box-shadow 0.4s ease, background 0.35s ease, border-color 0.35s ease;
 }
 
 .brief-photo-card--left .brief-photo {
@@ -485,8 +489,14 @@ body:hover .cursor-light { opacity: 1; }
 }
 
 .brief-photo:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.35) 40%, rgba(255, 255, 255, 0.52) 100%);
+  border-color: rgba(255, 255, 255, 0.95);
   transform: rotate(0deg) scale(1.02);
-  box-shadow: 0 30px 65px rgba(23, 34, 55, 0.18);
+  box-shadow: 
+    0 30px 65px rgba(35, 49, 74, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 2px 3px #ffffff,
+    inset 0 -2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .brief-photo img {
@@ -839,11 +849,17 @@ body:hover .cursor-light { opacity: 1; }
   height: 190px;
   margin-top: -95px;
   margin-left: -110px;
-  padding: 10px 10px 22px;
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 12px;
-  box-shadow: 0 16px 40px rgba(23, 34, 55, 0.12);
+  padding: 10px 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.25) 40%, rgba(255, 255, 255, 0.4) 100%);
+  backdrop-filter: blur(24px) saturate(1.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: 
+    0 16px 40px rgba(35, 49, 74, 0.14),
+    0 3px 8px rgba(0, 0, 0, 0.06),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.04);
   opacity: 0;
   transform: translate(0px, 40px) scale(0.4) rotate(0deg);
   will-change: transform, opacity;
@@ -852,8 +868,14 @@ body:hover .cursor-light { opacity: 1; }
 
 .archive-photo:hover {
   z-index: 60 !important;
-  transform: translate(var(--card-tx), calc(var(--card-ty) - 10px)) scale(1.06) rotate(0deg) !important;
-  box-shadow: 0 28px 65px rgba(0, 0, 0, 0.22);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.38) 40%, rgba(255, 255, 255, 0.55) 100%);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 28px 65px rgba(35, 49, 74, 0.22),
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 2px 3px #ffffff,
+    inset 0 -2px 4px rgba(0, 0, 0, 0.05);
+  transform: translate(var(--card-tx), calc(var(--card-ty) - 10px)) scale(1.08) rotate(0deg) !important;
 }
 
 .archive-photo > div {
