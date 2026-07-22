@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="100%" height="100%">
+  <defs>
+    <linearGradient id="cg-bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1c130e"/>
+      <stop offset="50%" stop-color="#362215"/>
+      <stop offset="100%" stop-color="#140b07"/>
+    </linearGradient>
+    <linearGradient id="crystal-amber" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffedd5"/>
+      <stop offset="30%" stop-color="#fdba74"/>
+      <stop offset="70%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#cg-bg)"/>
+  <polygon points="600,120 720,380 620,720 480,680 420,340" fill="url(#crystal-amber)" opacity="0.9"/>
+  <polygon points="600,120 720,380 880,300 780,100" fill="#ffedd5" opacity="0.8"/>
+  <polygon points="620,720 720,380 940,520 800,780" fill="#ea580c" opacity="0.85"/>
+  <polygon points="420,340 480,680 240,620 220,300" fill="#fdba74" opacity="0.75"/>
+  <g stroke="#ffedd5" stroke-width="1" fill="none" opacity="0.5">
+    <line x1="600" y1="120" x2="620" y2="720"/>
+    <line x1="420" y1="340" x2="720" y2="380"/>
+    <line x1="220" y1="300" x2="880" y2="300"/>
+  </g>
+  <text x="50" y="750" fill="rgba(254,215,170,0.7)" font-family="monospace" font-size="16" letter-spacing="2">CVD NUCLEATION // 450°C CRYSTALLINE DEPOSITION</text>
+</svg>

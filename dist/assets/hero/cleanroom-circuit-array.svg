@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="waferBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b2838" />
+      <stop offset="50%" stop-color="#2a3f57" />
+      <stop offset="100%" stop-color="#141e2b" />
+    </linearGradient>
+    <pattern id="siliconGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <rect width="36" height="36" fill="rgba(198, 222, 241, 0.08)" stroke="rgba(255, 255, 255, 0.2)" stroke-width="0.8" />
+      <circle cx="18" cy="18" r="3" fill="rgba(241, 211, 194, 0.4)" />
+    </pattern>
+    <filter id="cleanGlow">
+      <feGaussianBlur stdDeviation="5" />
+      <feComposite in="SourceGraphic" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#waferBg)" />
+  <rect x="100" y="80" width="1000" height="640" fill="url(#siliconGrid)" />
+
+  <!-- Micro-probing Pin Array -->
+  <g stroke="#ffffff" stroke-width="1.5" fill="none">
+    <line x1="300" y1="0" x2="300" y2="350" />
+    <line x1="450" y1="0" x2="450" y2="280" />
+    <line x1="600" y1="0" x2="600" y2="420" />
+    <line x1="750" y1="0" x2="750" y2="310" />
+    <line x1="900" y1="0" x2="900" y2="380" />
+  </g>
+
+  <!-- Contact Nodes -->
+  <circle cx="300" cy="350" r="8" fill="rgba(198, 222, 241, 0.9)" filter="url(#cleanGlow)" />
+  <circle cx="450" cy="280" r="8" fill="rgba(255, 250, 240, 0.95)" filter="url(#cleanGlow)" />
+  <circle cx="600" cy="420" r="10" fill="#ffffff" filter="url(#cleanGlow)" />
+  <circle cx="750" cy="310" r="8" fill="rgba(241, 211, 194, 0.9)" filter="url(#cleanGlow)" />
+  <circle cx="900" cy="380" r="8" fill="rgba(218, 214, 235, 0.9)" filter="url(#cleanGlow)" />
+
+  <!-- Traces -->
+  <path d="M 300 350 L 450 500 L 600 420 L 750 580 L 900 380" fill="none" stroke="rgba(198, 222, 241, 0.6)" stroke-width="2.5" />
+
+  <text x="40" y="760" font-family="monospace" font-size="13" fill="rgba(255, 255, 255, 0.55)" letter-spacing="3">INFRASTRUCTURE // SILICON WAFER PROBING RIG</text>
+</svg>

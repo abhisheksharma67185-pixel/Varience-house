@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width="1000" height="1000">
+  <defs>
+    <radialGradient id="bioBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#192a3e" />
+      <stop offset="65%" stop-color="#121d2b" />
+      <stop offset="100%" stop-color="#0a121c" />
+    </radialGradient>
+    <filter id="bioBlur">
+      <feGaussianBlur stdDeviation="7" />
+      <feComposite in="SourceGraphic" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="1000" height="1000" fill="url(#bioBg)" />
+
+  <!-- Cellular membrane networks -->
+  <path d="M 150 200 C 300 100 450 350 600 250 C 750 150 850 400 900 600 C 950 800 700 850 500 750 C 300 650 100 800 80 500 Z" fill="none" stroke="rgba(198, 222, 241, 0.45)" stroke-width="4" filter="url(#bioBlur)" />
+  <path d="M 250 300 C 400 220 520 420 680 320 C 800 220 820 480 750 680 C 680 880 480 720 320 680 C 160 640 180 380 250 300 Z" fill="rgba(218, 232, 245, 0.12)" stroke="rgba(255, 250, 240, 0.6)" stroke-width="2.5" />
+
+  <!-- Microtubules & filamentous strands -->
+  <g stroke="rgba(218, 214, 235, 0.55)" stroke-width="1.8" fill="none">
+    <path d="M 320 350 Q 500 450 680 380 T 820 620" />
+    <path d="M 280 480 Q 420 580 620 520 T 780 720" />
+    <path d="M 400 260 Q 480 400 420 620 T 560 800" />
+  </g>
+
+  <!-- Fluorescent cell nuclei -->
+  <ellipse cx="480" cy="480" rx="65" ry="50" fill="rgba(255, 250, 240, 0.8)" filter="url(#bioBlur)" />
+  <ellipse cx="480" cy="480" rx="35" ry="25" fill="#ffffff" />
+
+  <ellipse cx="720" cy="380" rx="42" ry="32" fill="rgba(198, 222, 241, 0.7)" filter="url(#bioBlur)" />
+  <ellipse cx="280" cy="620" rx="48" ry="38" fill="rgba(241, 211, 194, 0.65)" filter="url(#bioBlur)" />
+
+  <text x="40" y="960" font-family="monospace" font-size="13" fill="rgba(255, 255, 255, 0.55)" letter-spacing="3">BIOLOGY // CONFOCAL MICROSCOPY 100x MAG</text>
+</svg>

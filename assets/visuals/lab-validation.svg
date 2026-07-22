@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<defs><radialGradient id="bg" cx="50%" cy="40%" r="78%">
+<stop offset="0%" stop-color="#12211a"/><stop offset="55%" stop-color="#0c1512"/><stop offset="100%" stop-color="#070c0a"/>
+</radialGradient>
+<linearGradient id="scanband" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#7dd3fc" stop-opacity="0"/><stop offset="50%" stop-color="#7dd3fc" stop-opacity=".16"/><stop offset="100%" stop-color="#7dd3fc" stop-opacity="0"/>
+</linearGradient></defs>
+<style>
+.ln{fill:#0e1613;stroke:#8aa69b;stroke-width:2;opacity:.85}
+.lnb{fill:none;stroke:#dcefe7;stroke-width:2;opacity:.9}
+.dim{fill:none;stroke:#5c7269;stroke-width:1.5;opacity:.4}
+.grn{stroke:#34d399}.cyn{stroke:#7dd3fc}.amb{stroke:#fbbf24}
+.fillG{fill:#34d399}.fillC{fill:#7dd3fc}.fillA{fill:#fbbf24}
+.led{animation:blink 2.4s ease-in-out infinite}
+.flow{stroke-dasharray:10 14;animation:flow 2.8s linear infinite}
+.scan{animation:scan 5.5s ease-in-out infinite}
+.pulse{animation:pulse 3s ease-in-out infinite}
+.bob{animation:bob 4.5s ease-in-out infinite}
+.lbl{font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:4px;fill:#5f766c}
+@keyframes blink{0%,100%{opacity:.12}50%{opacity:1}}
+@keyframes flow{to{stroke-dashoffset:-48}}
+@keyframes scan{0%,100%{opacity:.08}50%{opacity:.85}}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect width="800" height="600" fill="url(#bg)"/>
+
+<rect class="ln" x="120" y="100" width="560" height="400" rx="16"/>
+<rect x="150" y="130" width="500" height="330" fill="#0a120e" stroke="#5c7269" stroke-width="1.5" opacity=".9"/>
+<line class="dim" x1="150" y1="196" x2="650" y2="196"/><line class="dim" x1="150" y1="262" x2="650" y2="262"/><line class="dim" x1="150" y1="328" x2="650" y2="328"/><line class="dim" x1="150" y1="394" x2="650" y2="394"/>
+<path class="flow grn" d="M170 300 C 210 236, 250 236, 290 300 S 370 364, 410 300 S 490 236, 530 300 S 610 364, 632 300" stroke-width="3"/>
+<line class="cyn" x1="170" y1="140" x2="170" y2="450" stroke-width="2" opacity=".7" style="animation:swp 4.4s linear infinite"/>
+<circle class="led fillG" cx="628" cy="162" r="5"/>
+<text class="lbl amb pulse" x="560" y="200" style="fill:#fbbf24;font-size:15px">PASS</text>
+<style>@keyframes swp{from{transform:translateX(0)}to{transform:translateX(462px)}}</style>
+<text class="lbl" x="58" y="556">LAB VALIDATION / RUN 04</text>
+</svg>

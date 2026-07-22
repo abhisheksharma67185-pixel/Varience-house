@@ -346,6 +346,37 @@ const updatePhotoArchive = () => {
   });
 };
 
+const bangaloreSection = document.querySelector('#bangalore');
+const satelliteLayer = document.querySelector('[data-satellite-layer]');
+
+if (bangaloreSection) {
+  if (reducedMotion) {
+    bangaloreSection.classList.add('is-inview');
+  } else {
+    const bangaloreObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          bangaloreSection.classList.add('is-inview');
+          bangaloreObserver.disconnect();
+        }
+      });
+    }, { threshold: 0.15 });
+    bangaloreObserver.observe(bangaloreSection);
+  }
+}
+
+const updateBangaloreScene = () => {
+  if (!bangaloreSection || reducedMotion) return;
+  const bounds = bangaloreSection.getBoundingClientRect();
+  const progress = clamp((window.innerHeight - bounds.top) / (window.innerHeight + bounds.height));
+  if (satelliteLayer) {
+    satelliteLayer.style.setProperty('--map-scroll-tilt', `${(8.5 - progress * 5.5).toFixed(3)}deg`);
+    if (window.innerWidth > 720) {
+      satelliteLayer.style.setProperty('--map-zoom', (1.04 + progress * 0.05).toFixed(4));
+    }
+  }
+};
+
 let documentFrame = 0;
 const updateDocumentSystems = () => {
   documentFrame = 0;
@@ -354,6 +385,7 @@ const updateDocumentSystems = () => {
   updateTerritoryDeck();
   updateResidencyDocument();
   updatePhotoArchive();
+  updateBangaloreScene();
 };
 const scheduleDocumentSystems = () => {
   if (documentFrame) return;
@@ -440,3 +472,158 @@ interestForm?.addEventListener('submit', (event) => {
   interestForm.setAttribute('hidden', '');
   successState?.removeAttribute('hidden');
 });
+
+/* Selection Dossier Card Flight System */
+const dossierGrid = document.querySelector('[data-dossier-grid]');
+const dossierManifesto = document.querySelector('[data-manifesto]');
+const dossierRecords = [...document.querySelectorAll('[data-dossier-record]')];
+
+if (dossierGrid && dossierManifesto && dossierRecords.length && !reducedMotion) {
+  let flightClone = null;
+  let flightSource = null;
+  let flightPinned = false;
+
+  const getGridRelativeRect = (element) => {
+    const gridRect = dossierGrid.getBoundingClientRect();
+    const elRect = element.getBoundingClientRect();
+    return {
+      left: elRect.left - gridRect.left,
+      top: elRect.top - gridRect.top,
+      width: elRect.width,
+      height: elRect.height
+    };
+  };
+
+  const flyTo = (clone, fromRect, toRect, onDone) => {
+    const duration = 440;
+    const start = performance.now();
+    const controlX = (fromRect.left + toRect.left) / 2;
+    const controlY = Math.min(fromRect.top, toRect.top) - 40;
+    const direction = toRect.left + toRect.width / 2 < fromRect.left + fromRect.width / 2 ? -1 : 1;
+
+    if (clone._flyFrame) cancelAnimationFrame(clone._flyFrame);
+
+    const step = (now) => {
+      const raw = Math.min(1, (now - start) / duration);
+      const e = 1 - Math.pow(1 - raw, 3);
+      const q = 1 - e;
+      const lift = Math.sin(Math.PI * e);
+
+      const currentX = q * q * fromRect.left + 2 * q * e * controlX + e * e * toRect.left;
+      const currentY = q * q * fromRect.top + 2 * q * e * controlY + e * e * toRect.top;
+      const currentW = fromRect.width + (toRect.width - fromRect.width) * e;
+      const currentH = fromRect.height + (toRect.height - fromRect.height) * e;
+
+      clone.style.left = `${currentX.toFixed(2)}px`;
+      clone.style.top = `${currentY.toFixed(2)}px`;
+      clone.style.width = `${currentW.toFixed(2)}px`;
+      clone.style.height = `${currentH.toFixed(2)}px`;
+      clone.style.transform = `translate3d(0, 0, 0) scale(${(1 + lift * 0.02).toFixed(4)}) rotate(${(lift * direction * 1.4).toFixed(2)}deg)`;
+      clone.style.boxShadow = `0 ${(20 + lift * 25).toFixed(0)}px ${(50 + lift * 35).toFixed(0)}px rgba(23, 34, 55, ${(0.1 + lift * 0.08).toFixed(2)})`;
+
+      if (raw < 1) {
+        clone._flyFrame = requestAnimationFrame(step);
+      } else {
+        clone.style.left = `${toRect.left}px`;
+        clone.style.top = `${toRect.top}px`;
+        clone.style.width = `${toRect.width}px`;
+        clone.style.height = `${toRect.height}px`;
+        clone.style.transform = '';
+        clone._flyFrame = 0;
+        if (onDone) onDone();
+      }
+    };
+    clone._flyFrame = requestAnimationFrame(step);
+  };
+
+  const endFlight = (animate) => {
+    if (!flightClone) return;
+    const clone = flightClone;
+    const source = flightSource;
+    flightClone = null;
+    flightSource = null;
+    flightPinned = false;
+    dossierManifesto.classList.remove('is-covered');
+
+    if (animate && source && dossierGrid.contains(source)) {
+      const currentRect = getGridRelativeRect(clone);
+      const sourceRect = getGridRelativeRect(source);
+      flyTo(clone, currentRect, sourceRect, () => {
+        clone.remove();
+        if (source) source.classList.remove('is-flight-source');
+      });
+    } else {
+      if (clone._flyFrame) cancelAnimationFrame(clone._flyFrame);
+      clone.remove();
+      if (source) source.classList.remove('is-flight-source');
+    }
+  };
+
+  const startFlight = (record, pinned) => {
+    if (flightSource === record) {
+      flightPinned = flightPinned || pinned;
+      return;
+    }
+    if (flightClone) {
+      const oldClone = flightClone;
+      const oldSource = flightSource;
+      flightClone = null;
+      flightSource = null;
+      flightPinned = false;
+      if (oldClone._flyFrame) cancelAnimationFrame(oldClone._flyFrame);
+      oldClone.remove();
+      if (oldSource) oldSource.classList.remove('is-flight-source');
+    }
+
+    const sourceRect = getGridRelativeRect(record);
+    const targetRect = getGridRelativeRect(dossierManifesto);
+
+    const clone = record.cloneNode(true);
+    clone.classList.add('dossier-clone');
+    clone.style.setProperty('--tilt-x', '0deg');
+    clone.style.setProperty('--tilt-y', '0deg');
+    clone.style.setProperty('--lift', '0px');
+
+    clone.style.left = `${sourceRect.left}px`;
+    clone.style.top = `${sourceRect.top}px`;
+    clone.style.width = `${sourceRect.width}px`;
+    clone.style.height = `${sourceRect.height}px`;
+
+    dossierGrid.appendChild(clone);
+    flightClone = clone;
+    flightSource = record;
+    flightPinned = pinned;
+
+    record.classList.add('is-flight-source');
+    dossierManifesto.classList.add('is-covered');
+
+    flyTo(clone, sourceRect, targetRect);
+  };
+
+  dossierRecords.forEach((record) => {
+    const handleEnter = () => startFlight(record, false);
+    record.addEventListener('mouseenter', handleEnter);
+    record.addEventListener('pointerenter', handleEnter);
+    record.addEventListener('click', (event) => {
+      event.stopPropagation();
+      if (flightSource === record && flightPinned) endFlight(true);
+      else startFlight(record, true);
+    });
+  });
+
+  const handleGridLeave = (event) => {
+    if (!event.relatedTarget || !dossierGrid.contains(event.relatedTarget)) {
+      if (flightClone && !flightPinned) {
+        endFlight(true);
+      }
+    }
+  };
+  dossierGrid.addEventListener('mouseleave', handleGridLeave);
+  dossierGrid.addEventListener('pointerleave', handleGridLeave);
+
+  document.addEventListener('click', () => endFlight(true));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') endFlight(true);
+  });
+  window.addEventListener('resize', () => endFlight(false));
+}

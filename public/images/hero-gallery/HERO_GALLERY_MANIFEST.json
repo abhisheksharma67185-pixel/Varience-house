@@ -1,0 +1,66 @@
+[
+  {
+    "src": "images/hero-gallery/thin-film.svg",
+    "alt": "Iridescent nanomaterial thin-film surface under laboratory laser illumination showing interference fringes",
+    "field": "Nanomaterials",
+    "focalPoint": "52% 44%",
+    "crop": "landscape",
+    "decorative": false
+  },
+  {
+    "src": "images/hero-gallery/laser-optics.svg",
+    "alt": "532nm coherent laser beam refracting through a precision optical glass prism with spectral dispersion",
+    "field": "Physics & Optics",
+    "focalPoint": "48% 50%",
+    "crop": "portrait",
+    "decorative": false
+  },
+  {
+    "src": "images/hero-gallery/bio-microscopy.svg",
+    "alt": "High-magnification fluorescent confocal microscopy showing biofabricated cell membrane networks",
+    "field": "Biology",
+    "focalPoint": "50% 48%",
+    "crop": "square",
+    "decorative": false
+  },
+  {
+    "src": "images/hero-gallery/crystal-growth.svg",
+    "alt": "Luminous crystal growth nucleation during chemical vapour deposition process at 450°C",
+    "field": "Chemistry",
+    "focalPoint": "55% 42%",
+    "crop": "landscape",
+    "decorative": false
+  },
+  {
+    "src": "images/hero-gallery/space-mirror.svg",
+    "alt": "Precision satellite telescope mirror array and gold-plated thermal radiation shield",
+    "field": "Space Science",
+    "focalPoint": "50% 50%",
+    "crop": "portrait",
+    "decorative": false
+  },
+  {
+    "src": "images/hero-gallery/cleanroom-sensor.svg",
+    "alt": "Micro-fabricated silicon sensor array and robotic probing instrumentation in cleanroom",
+    "field": "Infrastructure",
+    "focalPoint": "46% 52%",
+    "crop": "square",
+    "decorative": false
+  },
+  {
+    "src": "images/hero-gallery/photonics-lattice.svg",
+    "alt": "Coherent multi-channel fiber-optic waveguide bundle emitting powder blue photonic light",
+    "field": "Photonics",
+    "focalPoint": "52% 48%",
+    "crop": "landscape",
+    "decorative": false
+  },
+  {
+    "src": "images/hero-gallery/researcher-micrometer.svg",
+    "alt": "Close-up of researcher hands fine-tuning a micro-optical micrometer alignment fixture",
+    "field": "Human Research",
+    "focalPoint": "50% 45%",
+    "crop": "portrait",
+    "decorative": false
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "id": "VH-HERO-NMT-01",
+    "src": "assets/hero/nanomaterial-thin-film.svg",
+    "alt": "Iridescent nanomaterial thin-film surface under laser illumination showing interference patterns",
+    "field": "Nanomaterials",
+    "focalPoint": "center 40%",
+    "orientation": "landscape"
+  },
+  {
+    "id": "VH-HERO-OPT-01",
+    "src": "assets/hero/optical-laser-prism.svg",
+    "alt": "Coherent laser beam refracting through precision optical glass prism with spectral dispersion",
+    "field": "Physics & Optics",
+    "focalPoint": "50% 50%",
+    "orientation": "portrait"
+  },
+  {
+    "id": "VH-HERO-BIO-01",
+    "src": "assets/hero/fluorescent-cell-microscopy.svg",
+    "alt": "High-magnification fluorescent confocal microscopy showing biofabricated cell membrane networks",
+    "field": "Biology",
+    "focalPoint": "30% 60%",
+    "orientation": "square"
+  },
+  {
+    "id": "VH-HERO-CHM-01",
+    "src": "assets/hero/crystalline-deposition.svg",
+    "alt": "Luminous crystal growth nucleation during chemical vapour deposition process",
+    "field": "Chemistry",
+    "focalPoint": "40% 50%",
+    "orientation": "landscape"
+  },
+  {
+    "id": "VH-HERO-SPC-01",
+    "src": "assets/hero/space-payload-optics.svg",
+    "alt": "Precision satellite telescope mirror array and gold-plated thermal radiation shield",
+    "field": "Space Science",
+    "focalPoint": "60% 40%",
+    "orientation": "portrait"
+  },
+  {
+    "id": "VH-HERO-INF-01",
+    "src": "assets/hero/cleanroom-circuit-array.svg",
+    "alt": "Micro-fabricated silicon sensor array and robotic probing instrumentation",
+    "field": "Scientific Infrastructure",
+    "focalPoint": "50% 50%",
+    "orientation": "landscape"
+  },
+  {
+    "id": "VH-HERO-PHO-01",
+    "src": "assets/hero/photonics-fiber-lattice.svg",
+    "alt": "Coherent multi-channel fiber-optic waveguide bundle emitting powder blue light",
+    "field": "Physics & Photonics",
+    "focalPoint": "50% 30%",
+    "orientation": "portrait"
+  },
+  {
+    "id": "VH-HERO-HUM-01",
+    "src": "assets/hero/researcher-instrument-hands.svg",
+    "alt": "Close-up of researcher hands fine-tuning a micro-optical alignment fixture",
+    "field": "Human Element",
+    "focalPoint": "50% 50%",
+    "orientation": "landscape"
+  }
+]

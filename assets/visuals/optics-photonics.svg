@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<defs><radialGradient id="bg" cx="50%" cy="40%" r="78%">
+<stop offset="0%" stop-color="#12211a"/><stop offset="55%" stop-color="#0c1512"/><stop offset="100%" stop-color="#070c0a"/>
+</radialGradient>
+<linearGradient id="scanband" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#7dd3fc" stop-opacity="0"/><stop offset="50%" stop-color="#7dd3fc" stop-opacity=".16"/><stop offset="100%" stop-color="#7dd3fc" stop-opacity="0"/>
+</linearGradient></defs>
+<style>
+.ln{fill:#0e1613;stroke:#8aa69b;stroke-width:2;opacity:.85}
+.lnb{fill:none;stroke:#dcefe7;stroke-width:2;opacity:.9}
+.dim{fill:none;stroke:#5c7269;stroke-width:1.5;opacity:.4}
+.grn{stroke:#34d399}.cyn{stroke:#7dd3fc}.amb{stroke:#fbbf24}
+.fillG{fill:#34d399}.fillC{fill:#7dd3fc}.fillA{fill:#fbbf24}
+.led{animation:blink 2.4s ease-in-out infinite}
+.flow{stroke-dasharray:10 14;animation:flow 2.8s linear infinite}
+.scan{animation:scan 5.5s ease-in-out infinite}
+.pulse{animation:pulse 3s ease-in-out infinite}
+.bob{animation:bob 4.5s ease-in-out infinite}
+.lbl{font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:4px;fill:#5f766c}
+@keyframes blink{0%,100%{opacity:.12}50%{opacity:1}}
+@keyframes flow{to{stroke-dashoffset:-48}}
+@keyframes scan{0%,100%{opacity:.08}50%{opacity:.85}}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect width="800" height="600" fill="url(#bg)"/>
+
+<rect class="ln" x="80" y="268" width="100" height="64" rx="8"/>
+<circle class="fillC pulse" cx="162" cy="300" r="6"/>
+<path class="flow cyn" d="M186 282 H392" opacity=".8"/><path class="flow cyn" d="M186 300 H392" opacity=".9" style="animation-delay:-.8s"/><path class="flow cyn" d="M186 318 H392" opacity=".8" style="animation-delay:-1.6s"/>
+<ellipse class="lnb" cx="400" cy="300" rx="16" ry="88"/>
+<path class="flow cyn" d="M408 282 L636 300" opacity=".8"/><path class="flow cyn" d="M408 300 H636" opacity=".9" style="animation-delay:-.6s"/><path class="flow cyn" d="M408 318 L636 300" opacity=".8" style="animation-delay:-1.2s"/>
+<path class="scan lnb" d="M226 268 Q246 300 226 332" style="animation-delay:-1s"/><path class="scan lnb" d="M262 262 Q286 300 262 338" style="animation-delay:-2.4s"/>
+<rect class="ln" x="636" y="272" width="72" height="56" rx="6"/>
+<circle class="fillG pulse" cx="672" cy="300" r="7" style="animation-delay:-1.4s"/>
+<circle r="3.5" class="fillC"><animateMotion dur="2.6s" repeatCount="indefinite" path="M186 300 H392"/></circle>
+<circle r="3" class="fillC"><animateMotion dur="1.8s" repeatCount="indefinite" path="M408 300 H636"/></circle>
+<text class="lbl" x="58" y="556">OPTICS BENCH / PHOTONICS</text>
+</svg>

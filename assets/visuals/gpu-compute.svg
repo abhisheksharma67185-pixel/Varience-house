@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+<defs><radialGradient id="bg" cx="50%" cy="40%" r="78%">
+<stop offset="0%" stop-color="#12211a"/><stop offset="55%" stop-color="#0c1512"/><stop offset="100%" stop-color="#070c0a"/>
+</radialGradient>
+<linearGradient id="scanband" x1="0" y1="0" x2="1" y2="0">
+<stop offset="0%" stop-color="#7dd3fc" stop-opacity="0"/><stop offset="50%" stop-color="#7dd3fc" stop-opacity=".16"/><stop offset="100%" stop-color="#7dd3fc" stop-opacity="0"/>
+</linearGradient></defs>
+<style>
+.ln{fill:#0e1613;stroke:#8aa69b;stroke-width:2;opacity:.85}
+.lnb{fill:none;stroke:#dcefe7;stroke-width:2;opacity:.9}
+.dim{fill:none;stroke:#5c7269;stroke-width:1.5;opacity:.4}
+.grn{stroke:#34d399}.cyn{stroke:#7dd3fc}.amb{stroke:#fbbf24}
+.fillG{fill:#34d399}.fillC{fill:#7dd3fc}.fillA{fill:#fbbf24}
+.led{animation:blink 2.4s ease-in-out infinite}
+.flow{stroke-dasharray:10 14;animation:flow 2.8s linear infinite}
+.scan{animation:scan 5.5s ease-in-out infinite}
+.pulse{animation:pulse 3s ease-in-out infinite}
+.bob{animation:bob 4.5s ease-in-out infinite}
+.lbl{font-family:ui-monospace,Menlo,monospace;font-size:13px;letter-spacing:4px;fill:#5f766c}
+@keyframes blink{0%,100%{opacity:.12}50%{opacity:1}}
+@keyframes flow{to{stroke-dashoffset:-48}}
+@keyframes scan{0%,100%{opacity:.08}50%{opacity:.85}}
+@keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect width="800" height="600" fill="url(#bg)"/>
+
+
+<rect class="ln" x="70" y="150" width="145" height="82" rx="7"/>
+<line class="dim" x1="86" y1="174" x2="166" y2="174"/>
+<line class="dim" x1="86" y1="190" x2="166" y2="190"/>
+<circle class="led fillG" cx="188" cy="172" r="4" style="animation-delay:0.0s"/>
+<circle class="led fillC" cx="188" cy="192" r="4" style="animation-delay:-0.5s"/>
+<circle class="led fillA" cx="188" cy="212" r="3" style="animation-delay:-1.0s"/>
+<rect class="ln" x="245" y="150" width="145" height="82" rx="7"/>
+<line class="dim" x1="261" y1="174" x2="341" y2="174"/>
+<line class="dim" x1="261" y1="190" x2="341" y2="190"/>
+<circle class="led fillG" cx="363" cy="172" r="4" style="animation-delay:-0.7s"/>
+<circle class="led fillC" cx="363" cy="192" r="4" style="animation-delay:-1.6s"/>
+<circle class="led fillA" cx="363" cy="212" r="3" style="animation-delay:-2.3s"/>
+<rect class="ln" x="420" y="150" width="145" height="82" rx="7"/>
+<line class="dim" x1="436" y1="174" x2="516" y2="174"/>
+<line class="dim" x1="436" y1="190" x2="516" y2="190"/>
+<circle class="led fillG" cx="538" cy="172" r="4" style="animation-delay:-1.4s"/>
+<circle class="led fillC" cx="538" cy="192" r="4" style="animation-delay:-2.7s"/>
+<circle class="led fillA" cx="538" cy="212" r="3" style="animation-delay:-3.6s"/>
+<rect class="ln" x="70" y="262" width="145" height="82" rx="7"/>
+<line class="dim" x1="86" y1="286" x2="166" y2="286"/>
+<line class="dim" x1="86" y1="302" x2="166" y2="302"/>
+<circle class="led fillG" cx="188" cy="284" r="4" style="animation-delay:-2.1s"/>
+<circle class="led fillC" cx="188" cy="304" r="4" style="animation-delay:-2.7s"/>
+<circle class="led fillA" cx="188" cy="324" r="3" style="animation-delay:-2.3s"/>
+<rect class="ln" x="245" y="262" width="145" height="82" rx="7"/>
+<line class="dim" x1="261" y1="286" x2="341" y2="286"/>
+<line class="dim" x1="261" y1="302" x2="341" y2="302"/>
+<circle class="led fillG" cx="363" cy="284" r="4" style="animation-delay:-2.8s"/>
+<circle class="led fillC" cx="363" cy="304" r="4" style="animation-delay:-3.8s"/>
+<circle class="led fillA" cx="363" cy="324" r="3" style="animation-delay:-3.6s"/>
+<rect class="ln" x="420" y="262" width="145" height="82" rx="7"/>
+<line class="dim" x1="436" y1="286" x2="516" y2="286"/>
+<line class="dim" x1="436" y1="302" x2="516" y2="302"/>
+<circle class="led fillG" cx="538" cy="284" r="4" style="animation-delay:-3.5s"/>
+<circle class="led fillC" cx="538" cy="304" r="4" style="animation-delay:-4.9s"/>
+<circle class="led fillA" cx="538" cy="324" r="3" style="animation-delay:-4.9s"/>
+<rect class="ln" x="70" y="374" width="145" height="82" rx="7"/>
+<line class="dim" x1="86" y1="398" x2="166" y2="398"/>
+<line class="dim" x1="86" y1="414" x2="166" y2="414"/>
+<circle class="led fillG" cx="188" cy="396" r="4" style="animation-delay:-4.2s"/>
+<circle class="led fillC" cx="188" cy="416" r="4" style="animation-delay:-4.9s"/>
+<circle class="led fillA" cx="188" cy="436" r="3" style="animation-delay:-3.6s"/>
+<rect class="ln" x="245" y="374" width="145" height="82" rx="7"/>
+<line class="dim" x1="261" y1="398" x2="341" y2="398"/>
+<line class="dim" x1="261" y1="414" x2="341" y2="414"/>
+<circle class="led fillG" cx="363" cy="396" r="4" style="animation-delay:-4.9s"/>
+<circle class="led fillC" cx="363" cy="416" r="4" style="animation-delay:-6.0s"/>
+<circle class="led fillA" cx="363" cy="436" r="3" style="animation-delay:-4.9s"/>
+<rect class="ln" x="420" y="374" width="145" height="82" rx="7"/>
+<line class="dim" x1="436" y1="398" x2="516" y2="398"/>
+<line class="dim" x1="436" y1="414" x2="516" y2="414"/>
+<circle class="led fillG" cx="538" cy="396" r="4" style="animation-delay:-5.6s"/>
+<circle class="led fillC" cx="538" cy="416" r="4" style="animation-delay:-7.1s"/>
+<circle class="led fillA" cx="538" cy="436" r="3" style="animation-delay:-6.2s"/>
+<g class="pulse"><circle class="lnb" cx="655" cy="191" r="26"/><path class="lnb cyn" d="M655 191 L655 171 M655 191 L672 201 M655 191 L638 201" style="transform-origin:655px 191px;animation:spin 6s linear infinite"/></g>
+<path class="flow grn" d="M190 520 V120" opacity=".35"/><path class="flow cyn" d="M400 530 V110" opacity=".3" style="animation-delay:-1.2s"/><path class="flow grn" d="M610 520 V130" opacity=".35" style="animation-delay:-2s"/>
+<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<text class="lbl" x="58" y="556">COMPUTE RACK / 16×GPU</text>
+</svg>

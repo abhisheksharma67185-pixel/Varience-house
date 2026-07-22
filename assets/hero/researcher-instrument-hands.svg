@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="humBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f2c3d" />
+      <stop offset="60%" stop-color="#2a3c52" />
+      <stop offset="100%" stop-color="#16202d" />
+    </linearGradient>
+    <filter id="hGlow">
+      <feGaussianBlur stdDeviation="6" />
+      <feComposite in="SourceGraphic" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#humBg)" />
+
+  <!-- Stainless Steel Optical Micrometer Stage -->
+  <rect x="350" y="250" width="500" height="300" rx="6" fill="#4a5e78" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2" />
+  <circle cx="600" cy="400" r="80" fill="#2d3e54" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" />
+  <circle cx="600" cy="400" r="30" fill="rgba(198, 222, 241, 0.8)" filter="url(#hGlow)" />
+
+  <!-- Micrometer Adjustment Dial -->
+  <rect x="800" y="360" width="180" height="80" rx="4" fill="#a0b3c6" stroke="#ffffff" stroke-width="1.5" />
+  <line x1="830" y1="360" x2="830" y2="440" stroke="#334458" stroke-width="2" />
+  <line x1="860" y1="360" x2="860" y2="440" stroke="#334458" stroke-width="2" />
+  <line x1="890" y1="360" x2="890" y2="440" stroke="#334458" stroke-width="2" />
+  <line x1="920" y1="360" x2="920" y2="440" stroke="#334458" stroke-width="2" />
+
+  <!-- Hands outline in clean editorial tone -->
+  <path d="M 960 400 C 1040 370 1150 360 1200 380 L 1200 480 C 1120 460 1020 440 960 400 Z" fill="rgba(241, 211, 194, 0.45)" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" />
+
+  <text x="40" y="760" font-family="monospace" font-size="13" fill="rgba(255, 255, 255, 0.55)" letter-spacing="3">HUMAN // MICROMETER ALIGNMENT / FIELD WORKSTATION</text>
+</svg>

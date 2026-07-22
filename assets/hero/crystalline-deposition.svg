@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" width="1200" height="800">
+  <defs>
+    <linearGradient id="crystalBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#182535" />
+      <stop offset="60%" stop-color="#24374c" />
+      <stop offset="100%" stop-color="#121b27" />
+    </linearGradient>
+    <linearGradient id="facetGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(255, 250, 240, 0.7)" />
+      <stop offset="50%" stop-color="rgba(218, 232, 245, 0.5)" />
+      <stop offset="100%" stop-color="rgba(241, 211, 194, 0.6)" />
+    </linearGradient>
+    <filter id="cBlur">
+      <feGaussianBlur stdDeviation="8" />
+      <feComposite in="SourceGraphic" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="1200" height="800" fill="url(#crystalBg)" />
+
+  <!-- Crystalline Nucleation Clusters -->
+  <g transform="translate(600, 400)">
+    <!-- Primary Crystal Facets -->
+    <polygon points="0,-220 140,-80 80,180 -120,160 -180,-40" fill="url(#facetGrad)" opacity="0.85" stroke="rgba(255, 255, 255, 0.6)" stroke-width="1.8" />
+    <polygon points="0,-220 140,-80 0,0" fill="rgba(255, 255, 255, 0.35)" />
+    <polygon points="140,-80 80,180 0,0" fill="rgba(198, 222, 241, 0.4)" />
+    <polygon points="80,180 -120,160 0,0" fill="rgba(241, 211, 194, 0.35)" />
+    <polygon points="-120,160 -180,-40 0,0" fill="rgba(218, 214, 235, 0.4)" />
+    <polygon points="-180,-40 0,-220 0,0" fill="rgba(255, 250, 240, 0.5)" />
+
+    <!-- Secondary Crystal Needle Facets -->
+    <polygon points="140,-80 320,-160 260,40" fill="rgba(218, 232, 245, 0.65)" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1.2" />
+    <polygon points="-180,-40 -340,-120 -280,80" fill="rgba(198, 222, 241, 0.6)" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1.2" />
+    <polygon points="80,180 220,320 -20,280" fill="rgba(241, 211, 194, 0.55)" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1.2" />
+
+    <!-- Core Luminous Hotspot -->
+    <circle cx="0" cy="0" r="28" fill="#ffffff" filter="url(#cBlur)" />
+  </g>
+
+  <!-- Solution fluid flow waves -->
+  <path d="M 0 600 Q 300 450 600 550 T 1200 480" fill="none" stroke="rgba(198, 222, 241, 0.25)" stroke-width="3" />
+  <path d="M 0 650 Q 450 520 900 620 T 1200 580" fill="none" stroke="rgba(241, 211, 194, 0.2)" stroke-width="2" />
+
+  <text x="40" y="760" font-family="monospace" font-size="13" fill="rgba(255, 255, 255, 0.55)" letter-spacing="3">CHEMISTRY // CVD CRYSTAL NUCLEATION 450°C</text>
+</svg>

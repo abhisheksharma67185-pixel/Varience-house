@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" width="100%" height="100%">
+  <defs>
+    <radialGradient id="bio-bg" cx="50%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#0f291e"/>
+      <stop offset="60%" stop-color="#071711"/>
+      <stop offset="100%" stop-color="#030a07"/>
+    </radialGradient>
+    <radialGradient id="node-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6ee7b7" stop-opacity="1"/>
+      <stop offset="50%" stop-color="#10b981" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#047857" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="900" height="900" fill="url(#bio-bg)"/>
+  <g stroke="#34d399" stroke-width="2" opacity="0.65" fill="none">
+    <path d="M 150,200 Q 300,100 450,250 T 750,200"/>
+    <path d="M 200,450 Q 350,300 500,480 T 800,400"/>
+    <path d="M 100,700 Q 300,550 550,750 T 850,650"/>
+    <path d="M 250,150 Q 200,400 300,650 T 250,850"/>
+    <path d="M 500,100 Q 480,400 520,700 T 550,880"/>
+    <path d="M 700,150 Q 680,450 720,680 T 750,850"/>
+  </g>
+  <circle cx="450" cy="250" r="30" fill="url(#node-glow)"/>
+  <circle cx="500" cy="480" r="45" fill="url(#node-glow)"/>
+  <circle cx="300" cy="650" r="35" fill="url(#node-glow)"/>
+  <circle cx="720" cy="680" r="28" fill="url(#node-glow)"/>
+  <circle cx="200" cy="450" r="24" fill="url(#node-glow)"/>
+  <text x="40" y="850" fill="rgba(167,243,208,0.7)" font-family="monospace" font-size="15" letter-spacing="2">100X CONFOCAL MICROSCOPY // CELLULAR MEMBRANE LATTICE</text>
+</svg>

@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1200" width="900" height="1200">
+  <defs>
+    <linearGradient id="prismBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#141e30" />
+      <stop offset="50%" stop-color="#1e2d42" />
+      <stop offset="100%" stop-color="#0f1724" />
+    </linearGradient>
+    <linearGradient id="laserBeam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(198, 222, 241, 0.9)" />
+      <stop offset="50%" stop-color="rgba(255, 255, 255, 1)" />
+      <stop offset="100%" stop-color="rgba(218, 232, 245, 0.95)" />
+    </linearGradient>
+    <linearGradient id="spectrum" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="rgba(241, 211, 194, 0.85)" />
+      <stop offset="35%" stop-color="rgba(255, 250, 240, 0.9)" />
+      <stop offset="70%" stop-color="rgba(198, 222, 241, 0.85)" />
+      <stop offset="100%" stop-color="rgba(218, 214, 235, 0.9)" />
+    </linearGradient>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6" />
+      <feComposite in="SourceGraphic" operator="over" />
+    </filter>
+  </defs>
+
+  <rect width="900" height="1200" fill="url(#prismBg)" />
+
+  <!-- Glass Prism Polygon -->
+  <polygon points="450,220 720,820 180,820" fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.4)" stroke-width="2" />
+  <polygon points="450,220 720,820 450,820" fill="rgba(255, 255, 255, 0.04)" />
+
+  <!-- Incident laser beam -->
+  <polygon points="-50,540 -50,546 315,523 315,517" fill="url(#laserBeam)" filter="url(#softGlow)" />
+  <line x1="-50" y1="543" x2="315" y2="520" stroke="#ffffff" stroke-width="3" filter="url(#softGlow)" />
+
+  <!-- Internal refraction -->
+  <polygon points="315,517 315,523 585,613 585,607" fill="rgba(255, 255, 255, 0.85)" filter="url(#softGlow)" />
+
+  <!-- Refracted spectral fan -->
+  <polygon points="585,607 950,420 950,780 585,613" fill="url(#spectrum)" opacity="0.75" filter="url(#softGlow)" />
+
+  <!-- Optical bench grid lines -->
+  <line x1="0" y1="920" x2="900" y2="920" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1" stroke-dasharray="8 8" />
+  <circle cx="315" cy="520" r="6" fill="#ffffff" filter="url(#softGlow)" />
+  <circle cx="585" cy="610" r="7" fill="#ffffff" filter="url(#softGlow)" />
+
+  <text x="40" y="1150" font-family="monospace" font-size="13" fill="rgba(255, 255, 255, 0.6)" letter-spacing="3">OPTICS // COHERENT BEAM SPLITTING 532nm</text>
+</svg>
