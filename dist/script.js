@@ -124,74 +124,117 @@ if (heroScene && finePointer && !reducedMotion) {
   });
 }
 
-const canvas = document.querySelector('[data-particle-canvas]');
+const smokeCanvas = document.querySelector('[data-smoke-canvas]');
 
-if (canvas) {
-  const context = canvas.getContext('2d');
+if (smokeCanvas) {
+  const ctx = smokeCanvas.getContext('2d');
   let width = 0;
   let height = 0;
   let dpr = 1;
-  let pointerX = 0;
-  let pointerY = 0;
-  let targetX = 0;
-  let targetY = 0;
+  let time = 0;
+  let mouseX = -1000;
+  let mouseY = -1000;
   let frame = 0;
-  const count = window.innerWidth < 720 ? 58 : 110;
-  const particles = Array.from({ length: count }, () => ({
-    x: (Math.random() - 0.5) * 1200,
-    y: (Math.random() - 0.5) * 900,
-    z: Math.random() * 950 + 80,
-    size: Math.random() * 1.6 + 0.4,
-    tint: Math.random(),
-  }));
+
+  const smokePuffs = [];
+  const count = window.innerWidth < 720 ? 30 : 48;
+
+  // Smoke streams in from the left edge and flows across to the right
+  const spawnPuff = (anywhere = false) => {
+    const radius = Math.random() * 150 + 100;
+    return {
+      x: anywhere ? Math.random() * window.innerWidth * 1.1 - radius : -(radius + Math.random() * 240),
+      y: Math.random() * window.innerHeight * 1.08 - window.innerHeight * 0.04,
+      radius,
+      vx: Math.random() * 1.15 + 0.95,
+      vy: -Math.random() * 0.14 - 0.02,
+      maxOpacity: Math.random() * 0.1 + 0.08,
+      rotation: Math.random() * Math.PI * 2,
+      vRot: (Math.random() - 0.5) * 0.0016,
+    };
+  };
+
+  for (let i = 0; i < count; i += 1) {
+    smokePuffs.push(spawnPuff(true));
+  }
 
   const resize = () => {
-    const bounds = canvas.getBoundingClientRect();
+    const bounds = smokeCanvas.getBoundingClientRect();
     width = bounds.width;
     height = bounds.height;
     dpr = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.round(width * dpr);
-    canvas.height = Math.round(height * dpr);
-    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    smokeCanvas.width = Math.round(width * dpr);
+    smokeCanvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   };
 
-  const updatePointer = (event) => {
-    const bounds = canvas.getBoundingClientRect();
-    targetX = ((event.clientX - bounds.left) / bounds.width - 0.5) * 70;
-    targetY = ((event.clientY - bounds.top) / bounds.height - 0.5) * 50;
+  const updateMouse = (event) => {
+    const bounds = smokeCanvas.getBoundingClientRect();
+    mouseX = event.clientX - bounds.left;
+    mouseY = event.clientY - bounds.top;
   };
 
-  const draw = () => {
-    context.clearRect(0, 0, width, height);
-    pointerX += (targetX - pointerX) * 0.035;
-    pointerY += (targetY - pointerY) * 0.035;
+  const renderSmoke = () => {
+    ctx.clearRect(0, 0, width, height);
+    time += 0.007;
 
-    particles.forEach((particle) => {
-      if (!reducedMotion) particle.z -= 0.48;
-      if (particle.z < 30) particle.z = 1030;
-      const scale = 540 / particle.z;
-      const x = width * 0.73 + (particle.x + pointerX) * scale;
-      const y = height * 0.4 + (particle.y + pointerY) * scale;
-      if (x < -20 || x > width + 20 || y < -20 || y > height + 20) return;
-      const alpha = Math.min(0.5, Math.max(0.06, 1 - particle.z / 1100));
-      const radius = Math.min(4, particle.size * scale);
-      const color = particle.tint > 0.96 ? `102,136,255` : particle.tint < 0.04 ? `255,98,56` : `67,83,108`;
-      context.beginPath();
-      context.fillStyle = `rgba(${color},${alpha})`;
-      context.arc(x, y, radius, 0, Math.PI * 2);
-      context.fill();
+    smokePuffs.forEach((p, index) => {
+      // Steady left-to-right flow with organic wobble
+      p.x += p.vx + Math.sin(time * 0.9 + p.y * 0.002) * 0.32;
+      p.y += p.vy + Math.cos(time * 0.7 + p.x * 0.0016) * 0.14;
+      p.rotation += p.vRot;
+
+      // Interactive fluid swirl
+      const dx = mouseX - p.x;
+      const dy = mouseY - p.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < 300 && dist > 0) {
+        const force = (1 - dist / 300) * 0.55;
+        p.x += force * 3.5;
+        p.y += (dy / dist) * force * 2;
+      }
+
+      // Recycle back to the left edge once fully past the right boundary
+      if (p.x - p.radius * 1.5 > width || p.y < -p.radius * 2) {
+        smokePuffs[index] = spawnPuff();
+        return;
+      }
+
+      // Fade in from the left edge, fade out approaching the right edge
+      const fadeIn = clamp((p.x + p.radius) / Math.max(width * 0.16, 1));
+      const fadeOut = clamp((width + p.radius * 0.4 - p.x) / Math.max(width * 0.22, 1));
+      const currentOpacity = p.maxOpacity * fadeIn * fadeOut;
+      if (currentOpacity <= 0.001) return;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation);
+
+      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, p.radius);
+      grad.addColorStop(0, `rgba(10, 12, 17, ${currentOpacity})`);
+      grad.addColorStop(0.32, `rgba(17, 21, 28, ${currentOpacity * 0.82})`);
+      grad.addColorStop(0.6, `rgba(30, 36, 46, ${currentOpacity * 0.36})`);
+      grad.addColorStop(0.85, `rgba(42, 49, 60, ${currentOpacity * 0.1})`);
+      grad.addColorStop(1, 'rgba(42, 49, 60, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(0, 0, p.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
     });
 
-    frame = requestAnimationFrame(draw);
+    frame = requestAnimationFrame(renderSmoke);
   };
 
   resize();
   window.addEventListener('resize', resize);
-  canvas.closest('.hero')?.addEventListener('pointermove', updatePointer, { passive: true });
-  draw();
+  smokeCanvas.closest('.hero')?.addEventListener('pointermove', updateMouse, { passive: true });
+  renderSmoke();
+
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) cancelAnimationFrame(frame);
-    else draw();
+    else renderSmoke();
   });
 }
 
@@ -322,27 +365,103 @@ const updateResidencyDocument = () => {
   if (progressLabel) progressLabel.textContent = `Day ${String(currentDay).padStart(2, '0')} of 30`;
 };
 
-const photoArchive = document.querySelector('[data-photo-archive]');
-const archivePhotos = [...document.querySelectorAll('[data-archive-photo]')];
+const envelopeSection = document.querySelector('[data-envelope-section]');
+const envelopePin = envelopeSection?.querySelector('[data-envelope-pin]');
+const envelopeBox = envelopeSection?.querySelector('[data-archive-envelope]');
+const envelopeFlap = envelopeSection?.querySelector('[data-envelope-flap]');
+const envelopeCards = [...(envelopeSection?.querySelectorAll('[data-archive-photo]') || [])];
+
+const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+/* Cards emerge one by one, alternating sides: two left, two right */
+const envelopeCardPlan = [
+  { side: -1, row: 0, rot: -6 },
+  { side: 1, row: 0, rot: 5 },
+  { side: -1, row: 1, rot: 4 },
+  { side: 1, row: 1, rot: -5 },
+];
+
+let envelopeScrubbed = false;
+
+const clearEnvelopeInlineStyles = () => {
+  if (envelopeFlap) {
+    envelopeFlap.style.transform = '';
+    envelopeFlap.style.zIndex = '';
+  }
+  envelopeCards.forEach((card) => {
+    card.style.transform = '';
+    card.style.zIndex = '';
+  });
+};
+
+if (envelopeSection) {
+  const envelopeObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        envelopeSection.classList.add('is-inview');
+      }
+    });
+  }, { threshold: 0.15 });
+  envelopeObserver.observe(envelopeSection);
+}
 
 const updatePhotoArchive = () => {
-  if (!photoArchive || window.innerWidth <= 720 || reducedMotion) return;
-  const bounds = photoArchive.getBoundingClientRect();
-  const progress = clamp((window.innerHeight * 0.78 - bounds.top) / Math.max(bounds.height * 0.78, 1));
-  const archiveBounds = photoArchive.getBoundingClientRect();
-  const stackX = archiveBounds.width * 0.5;
-  const stackY = archiveBounds.height * 0.45;
+  if (!envelopeSection || !envelopePin || !envelopeBox || !envelopeFlap || !envelopeCards.length) return;
 
-  archivePhotos.forEach((photo, index) => {
-    const photoX = photo.offsetLeft + photo.offsetWidth * 0.5;
-    const photoY = photo.offsetTop + photo.offsetHeight * 0.5;
-    const x = (stackX - photoX) * (1 - progress) * 0.86;
-    const y = (stackY - photoY) * (1 - progress) * 0.78;
-    const rotation = (index - 3.5) * 1.7 * (1 - progress);
-    photo.style.setProperty('--archive-x', `${x}px`);
-    photo.style.setProperty('--archive-y', `${y}px`);
-    photo.style.setProperty('--archive-r', `${rotation}deg`);
-    photo.style.setProperty('--archive-z', String(index + 1));
+  const useStaticLayout = reducedMotion || window.innerWidth <= 720;
+
+  if (useStaticLayout) {
+    if (envelopeScrubbed) {
+      envelopeScrubbed = false;
+      envelopeSection.classList.remove('is-scrubbed');
+      clearEnvelopeInlineStyles();
+    }
+    return;
+  }
+
+  if (!envelopeScrubbed) {
+    envelopeScrubbed = true;
+    envelopeSection.classList.add('is-scrubbed');
+  }
+
+  const bounds = envelopePin.getBoundingClientRect();
+  const scrollDistance = Math.max(1, bounds.height - window.innerHeight);
+  const progress = clamp(-bounds.top / scrollDistance);
+
+  /* Phase 1 — the envelope mouth (top flap) rotates open */
+  const mouth = easeInOutCubic(clamp((progress - 0.02) / 0.14));
+  envelopeFlap.style.transform = `perspective(1300px) rotateX(${(mouth * 178).toFixed(2)}deg)`;
+  envelopeFlap.style.zIndex = mouth > 0.5 ? '1' : '4';
+
+  /* Phase 2 — cards rise straight out of the mouth one by one. A card only
+     starts travelling sideways once its bottom edge has fully cleared the
+     mouth, so it can never cross in front of the envelope body. */
+  const envW = envelopeBox.offsetWidth;
+  const envH = envelopeBox.offsetHeight;
+  const cardW = envelopeCards[0].offsetWidth;
+  const cardH = envelopeCards[0].offsetHeight;
+  const cardHomeTop = envelopeCards[0].offsetTop;
+  const clearY = -(cardHomeTop + cardH + 12);
+
+  envelopeCards.forEach((card, index) => {
+    const plan = envelopeCardPlan[index % envelopeCardPlan.length];
+    const start = 0.18 + index * 0.2;
+    const t = clamp((progress - start) / 0.19);
+    /* 1) rise through the mouth, 2) glide sideways above the envelope,
+       3) settle down into the side slot */
+    const riseT = easeOutCubic(clamp(t / 0.42));
+    const travelT = easeInOutCubic(clamp((t - 0.42) / 0.3));
+    const settleT = easeInOutCubic(clamp((t - 0.72) / 0.28));
+    const finalX = plan.side * Math.min(envW / 2 + cardW * 0.68, window.innerWidth / 2 - cardW * 0.58);
+    const finalY = plan.row === 0 ? -(envH * 0.47) : envH * 0.155;
+    const x = finalX * travelT;
+    const y = clearY * riseT + (finalY - clearY) * settleT;
+    const rotation = plan.rot * travelT;
+    const scale = 0.62 + 0.38 * riseT;
+    /* Later cards tuck behind the ones already placed, so captions stay visible */
+    card.style.zIndex = String(envelopeCards.length - index);
+    card.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px) rotate(${rotation.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
   });
 };
 
@@ -479,9 +598,9 @@ const dossierManifesto = document.querySelector('[data-manifesto]');
 const dossierRecords = [...document.querySelectorAll('[data-dossier-record]')];
 
 if (dossierGrid && dossierManifesto && dossierRecords.length && !reducedMotion) {
-  let flightClone = null;
-  let flightSource = null;
-  let flightPinned = false;
+  let activeClone = null;
+  let activeSource = null;
+  let isPinned = false;
 
   const getGridRelativeRect = (element) => {
     const gridRect = dossierGrid.getBoundingClientRect();
@@ -494,83 +613,54 @@ if (dossierGrid && dossierManifesto && dossierRecords.length && !reducedMotion) 
     };
   };
 
-  const flyTo = (clone, fromRect, toRect, onDone) => {
-    const duration = 440;
-    const start = performance.now();
-    const controlX = (fromRect.left + toRect.left) / 2;
-    const controlY = Math.min(fromRect.top, toRect.top) - 40;
-    const direction = toRect.left + toRect.width / 2 < fromRect.left + fromRect.width / 2 ? -1 : 1;
+  const removeClone = () => {
+    if (!activeClone) return;
+    const clone = activeClone;
+    const source = activeSource;
+    activeClone = null;
+    activeSource = null;
+    isPinned = false;
 
-    if (clone._flyFrame) cancelAnimationFrame(clone._flyFrame);
-
-    const step = (now) => {
-      const raw = Math.min(1, (now - start) / duration);
-      const e = 1 - Math.pow(1 - raw, 3);
-      const q = 1 - e;
-      const lift = Math.sin(Math.PI * e);
-
-      const currentX = q * q * fromRect.left + 2 * q * e * controlX + e * e * toRect.left;
-      const currentY = q * q * fromRect.top + 2 * q * e * controlY + e * e * toRect.top;
-      const currentW = fromRect.width + (toRect.width - fromRect.width) * e;
-      const currentH = fromRect.height + (toRect.height - fromRect.height) * e;
-
-      clone.style.left = `${currentX.toFixed(2)}px`;
-      clone.style.top = `${currentY.toFixed(2)}px`;
-      clone.style.width = `${currentW.toFixed(2)}px`;
-      clone.style.height = `${currentH.toFixed(2)}px`;
-      clone.style.transform = `translate3d(0, 0, 0) scale(${(1 + lift * 0.02).toFixed(4)}) rotate(${(lift * direction * 1.4).toFixed(2)}deg)`;
-      clone.style.boxShadow = `0 ${(20 + lift * 25).toFixed(0)}px ${(50 + lift * 35).toFixed(0)}px rgba(23, 34, 55, ${(0.1 + lift * 0.08).toFixed(2)})`;
-
-      if (raw < 1) {
-        clone._flyFrame = requestAnimationFrame(step);
-      } else {
-        clone.style.left = `${toRect.left}px`;
-        clone.style.top = `${toRect.top}px`;
-        clone.style.width = `${toRect.width}px`;
-        clone.style.height = `${toRect.height}px`;
-        clone.style.transform = '';
-        clone._flyFrame = 0;
-        if (onDone) onDone();
-      }
-    };
-    clone._flyFrame = requestAnimationFrame(step);
-  };
-
-  const endFlight = (animate) => {
-    if (!flightClone) return;
-    const clone = flightClone;
-    const source = flightSource;
-    flightClone = null;
-    flightSource = null;
-    flightPinned = false;
     dossierManifesto.classList.remove('is-covered');
 
-    if (animate && source && dossierGrid.contains(source)) {
-      const currentRect = getGridRelativeRect(clone);
+    if (source && dossierGrid.contains(source)) {
       const sourceRect = getGridRelativeRect(source);
-      flyTo(clone, currentRect, sourceRect, () => {
+      clone.style.left = `${sourceRect.left}px`;
+      clone.style.top = `${sourceRect.top}px`;
+      clone.style.width = `${sourceRect.width}px`;
+      clone.style.height = `${sourceRect.height}px`;
+      clone.style.transform = 'scale(1) rotate(0deg)';
+      clone.style.opacity = '0.7';
+
+      const handleTransitionEnd = (e) => {
+        if (e.propertyName === 'left' || e.propertyName === 'top' || e.propertyName === 'opacity') {
+          clone.removeEventListener('transitionend', handleTransitionEnd);
+          clone.remove();
+          if (source) source.classList.remove('is-flight-source');
+        }
+      };
+      clone.addEventListener('transitionend', handleTransitionEnd);
+      setTimeout(() => {
         clone.remove();
         if (source) source.classList.remove('is-flight-source');
-      });
+      }, 550);
     } else {
-      if (clone._flyFrame) cancelAnimationFrame(clone._flyFrame);
       clone.remove();
-      if (source) source.classList.remove('is-flight-source');
     }
   };
 
-  const startFlight = (record, pinned) => {
-    if (flightSource === record) {
-      flightPinned = flightPinned || pinned;
+  const flyToCenter = (record, pinned = false) => {
+    if (activeSource === record) {
+      if (pinned) isPinned = true;
       return;
     }
-    if (flightClone) {
-      const oldClone = flightClone;
-      const oldSource = flightSource;
-      flightClone = null;
-      flightSource = null;
-      flightPinned = false;
-      if (oldClone._flyFrame) cancelAnimationFrame(oldClone._flyFrame);
+
+    if (activeClone) {
+      const oldClone = activeClone;
+      const oldSource = activeSource;
+      activeClone = null;
+      activeSource = null;
+      isPinned = false;
       oldClone.remove();
       if (oldSource) oldSource.classList.remove('is-flight-source');
     }
@@ -579,51 +669,70 @@ if (dossierGrid && dossierManifesto && dossierRecords.length && !reducedMotion) 
     const targetRect = getGridRelativeRect(dossierManifesto);
 
     const clone = record.cloneNode(true);
-    clone.classList.add('dossier-clone');
-    clone.style.setProperty('--tilt-x', '0deg');
-    clone.style.setProperty('--tilt-y', '0deg');
-    clone.style.setProperty('--lift', '0px');
+    clone.className = 'dossier-record dossier-clone';
 
     clone.style.left = `${sourceRect.left}px`;
     clone.style.top = `${sourceRect.top}px`;
     clone.style.width = `${sourceRect.width}px`;
     clone.style.height = `${sourceRect.height}px`;
+    clone.style.opacity = '1';
+    clone.style.transform = 'scale(1) rotate(0deg)';
 
     dossierGrid.appendChild(clone);
-    flightClone = clone;
-    flightSource = record;
-    flightPinned = pinned;
+    activeClone = clone;
+    activeSource = record;
+    isPinned = pinned;
 
     record.classList.add('is-flight-source');
     dossierManifesto.classList.add('is-covered');
 
-    flyTo(clone, sourceRect, targetRect);
+    // Force layout reflow before triggering smooth CSS transition to center
+    void clone.offsetHeight;
+
+    requestAnimationFrame(() => {
+      clone.style.left = `${targetRect.left}px`;
+      clone.style.top = `${targetRect.top}px`;
+      clone.style.width = `${targetRect.width}px`;
+      clone.style.height = `${targetRect.height}px`;
+      clone.style.transform = 'scale(1.02) rotate(-0.5deg)';
+    });
   };
 
   dossierRecords.forEach((record) => {
-    const handleEnter = () => startFlight(record, false);
-    record.addEventListener('mouseenter', handleEnter);
-    record.addEventListener('pointerenter', handleEnter);
-    record.addEventListener('click', (event) => {
-      event.stopPropagation();
-      if (flightSource === record && flightPinned) endFlight(true);
-      else startFlight(record, true);
+    record.addEventListener('pointerenter', () => {
+      if (!isPinned) flyToCenter(record, false);
+    });
+
+    record.addEventListener('pointerleave', (e) => {
+      // If moving to the clone itself or if pinned, keep active
+      if (!isPinned && activeSource === record) {
+        removeClone();
+      }
+    });
+
+    record.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeSource === record && isPinned) {
+        removeClone();
+      } else {
+        flyToCenter(record, true);
+      }
     });
   });
 
-  const handleGridLeave = (event) => {
-    if (!event.relatedTarget || !dossierGrid.contains(event.relatedTarget)) {
-      if (flightClone && !flightPinned) {
-        endFlight(true);
-      }
-    }
-  };
-  dossierGrid.addEventListener('mouseleave', handleGridLeave);
-  dossierGrid.addEventListener('pointerleave', handleGridLeave);
-
-  document.addEventListener('click', () => endFlight(true));
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') endFlight(true);
+  dossierGrid.addEventListener('mouseleave', () => {
+    if (!isPinned && activeClone) removeClone();
   });
-  window.addEventListener('resize', () => endFlight(false));
+
+  document.addEventListener('click', (e) => {
+    if (isPinned && !e.target.closest('[data-dossier-record]')) {
+      removeClone();
+    }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') removeClone();
+  });
+
+  window.addEventListener('resize', () => removeClone());
 }

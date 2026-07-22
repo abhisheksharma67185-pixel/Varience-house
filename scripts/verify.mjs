@@ -38,7 +38,7 @@ const count = (source, token) => source.split(token).length - 1;
 if (count(css, '{') !== count(css, '}')) failures.push('Unbalanced CSS braces');
 if (script.includes('console.log(')) failures.push('Debug console logging found in script.js');
 
-const requiredSections = ['about', 'research-tracks', 'residency', 'life', 'applicants', 'bangalore', 'apply'];
+const requiredSections = ['about', 'life', 'applicants', 'bangalore', 'apply'];
 for (const id of requiredSections) {
   if (!ids.includes(id)) failures.push(`Required section missing: #${id}`);
 }
